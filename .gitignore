@@ -2,3 +2,7 @@ OwnBI/bin/Antlr3.Runtime.dll
 *.pdb
 *.dll
 *.cache
+
+/OwnBI/bin
+/OwnBI/obj
+/packages
