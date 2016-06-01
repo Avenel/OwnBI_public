@@ -1,4 +1,7 @@
 OwnBI/bin/Antlr3.Runtime.dll
+OwnBI/OwnBI.csproj.user
+OwnBI.v12.suo
+
 *.pdb
 *.dll
 *.cache
