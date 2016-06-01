@@ -1,0 +1,26 @@
+﻿@model OwnBI.ViewModels.HomeViewModel
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>OwnBI</h1>
+    <p class="lead">- Your own insights.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        @Html.Partial("_tagCloud", Model.NameTagCloud)
+    </div>
+    <div class="col-md-6">
+        @Html.Partial("_tagCloud", Model.DocTypeTagCloud)
+    </div>
+    <div class="col-md-6">
+        @Html.Partial("_tagCloud", Model.OrtTagCloud)
+    </div>
+    <div class="col-md-6">
+        @Html.Partial("_tagCloud", Model.KategorieTagCloud)
+    </div>
+</div>
+

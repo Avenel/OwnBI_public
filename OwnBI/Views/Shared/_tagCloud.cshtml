@@ -1,0 +1,27 @@
+﻿@model OwnBI.ViewModels.TagCloudViewModel
+
+@{
+    ViewBag.Title = "_tagCloud";
+}
+
+<h2>@Model.Title</h2>
+<div id="tagCloud@(Model.Title.Replace(" ", ""))" style="height: 250px;"></div>
+
+<script>
+    var words = [
+
+        @foreach(var tag in Model.Tags)
+        {
+            <text>{ text: '@tag.Key', weight: @tag.Value.ToString() },</text>
+        }
+
+    ];
+
+    $('#tagCloud@(Model.Title.Replace(" ", ""))').jQCloud(words, {
+        autoResize: true, 
+        fontSize: {
+            from: 0.1,
+            to: 0.05
+        }
+    });
+</script>

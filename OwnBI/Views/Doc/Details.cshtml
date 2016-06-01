@@ -1,0 +1,24 @@
+﻿@model OwnBI.ViewModels.DocViewModel
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>@Model.Type</h4>
+
+    <hr />
+    <dl class="dl-horizontal">
+        @foreach (var metaTag in Model.MetaTags)
+        {
+            <dt>@metaTag.Name</dt>
+            <dd>@Model.Values[metaTag.Id.ToString()]</dd>
+        }
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

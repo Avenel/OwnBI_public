@@ -1,0 +1,52 @@
+﻿@model OwnBI.ViewModels.DocIndexViewModel
+
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<div class="row">
+
+    <div class="col-md-2">
+        <ul class="nav nav-pills nav-stacked">
+            @foreach (var docType in Model.DocTypes)
+            {
+                <li>@Html.ActionLink("Create New " + docType.Name, "Create", new { type = docType.Id })</li>
+            }
+        </ul>
+    </div>
+
+    <div class="col-md-10">
+        <table class="table">
+            <tr>
+                <th>
+                    Id
+                </th>
+                <th>
+                    Type
+                </th>
+                <th></th>
+            </tr>
+
+            @foreach (var item in Model.Docs)
+            {
+                <tr>
+                    <td>
+                        @item.Id
+                    </td>
+                    <td>
+                        @item.Type
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                        @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                    </td>
+                </tr>
+            }
+
+        </table>
+    </div>
+</div>
