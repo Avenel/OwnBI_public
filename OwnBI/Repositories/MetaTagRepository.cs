@@ -15,7 +15,7 @@ namespace OwnBI.Repositories
         {
             var res = ElasticClientFactory.Client.Search<MetaTag>(s => s
                .From(0)
-               .Size(10)
+               .Size(100)
                .Query(q => q.MatchAll())
                .Sort(o => o.Ascending(f => f.Name)));
 

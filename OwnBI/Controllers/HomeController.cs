@@ -82,14 +82,21 @@ namespace OwnBI.Controllers
                 .From(0)
                 .MatchAll()
                 .Aggregations(a =>
-                    a.Terms("tagcloud", ta => ta.Field("kategorie"))
+                    a.Terms("tagcloud", ta => ta.Field("kategorie")
+                    .Aggregations(aa =>
+                        aa.Sum("summe", ts => ts.Field("preis"))
+                    ))
                 )
             );
 
             foreach (var tag in (res.Aggregations["tagcloud"] as Nest.BucketAggregate).Items)
             {
                 var nestTag = tag as Nest.KeyedBucket;
-                kategorieTagCloudModel.Tags.Add(nestTag.Key, nestTag.DocCount.Value);
+                double sum = 0.0;
+                var sumAggs = (nestTag.Aggregations["summe"] as Nest.ValueAggregate);
+                sum = sumAggs.Value.Value;
+
+                kategorieTagCloudModel.Tags.Add(nestTag.Key, (int)sum);
             }
             model.KategorieTagCloud = kategorieTagCloudModel;
 
@@ -102,14 +109,22 @@ namespace OwnBI.Controllers
                 .From(0)
                 .MatchAll()
                 .Aggregations(a =>
-                    a.Terms("tagcloud", ta => ta.Field("handel"))
+                    a.Terms("tagcloud", ta => ta.Field("handel")
+                        .Aggregations(aa =>
+                            aa.Sum("summe", ts => ts.Field("preis"))
+                        )
+                    )
                 )
             );
 
             foreach (var tag in (res.Aggregations["tagcloud"] as Nest.BucketAggregate).Items)
             {
                 var nestTag = tag as Nest.KeyedBucket;
-                handelTagCloudModel.Tags.Add(nestTag.Key, nestTag.DocCount.Value);
+                double sum = 0.0;
+                var sumAggs = (nestTag.Aggregations["summe"] as Nest.ValueAggregate);
+                sum = sumAggs.Value.Value;
+                
+                handelTagCloudModel.Tags.Add(nestTag.Key, (int) sum);
             }
             model.HandelTagCloud = handelTagCloudModel;
 
@@ -124,15 +139,20 @@ namespace OwnBI.Controllers
                         .Field("preis"))
                 )                
             );
-
             model.SummeAusgaben = res.Aggs.Sum("summe").Value.Value;
-            model.SummeEinnahmen = 0.0;
 
-            //foreach (var tag in (res.Aggregations["summe"] as Nest.BucketAggregate).Items)
-            //{
-            //    var nestTag = tag as Nest.KeyedBucket;
-            //    model.SummePreis = 0.00m;//nestTag.val;
-            //}
+            // Einnahmen Summe
+            res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
+                .Index("docs")
+                .From(0)
+                .Size(1000)
+                .Query(q => q.Match(m => m.Field("type").Query("05ce209c-e837-4fc4-b2a4-6b54bf73be46")))
+                .Aggregations(a =>
+                    a.Sum("summe", aa => aa
+                        .Field("betrag"))
+                )
+            );
+            model.SummeEinnahmen = res.Aggs.Sum("summe").Value.Value;
 
             return View(model);
         }
