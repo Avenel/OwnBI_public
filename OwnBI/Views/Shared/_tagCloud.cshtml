@@ -4,8 +4,12 @@
     ViewBag.Title = "_tagCloud";
 }
 
-<h2>@Model.Title</h2>
-<div id="tagCloud@(Model.Title.Replace(" ", ""))" style="height: 250px;"></div>
+<div class="panel panel-default">
+    <div class="panel-heading">@Model.Title</div>
+    <div class="panel-body">
+        <div id="tagCloud@(Model.Title.Replace(" ", ""))" style="height: 250px;"></div>
+    </div>
+</div>
 
 <script>
     var words = [
@@ -20,8 +24,8 @@
     $('#tagCloud@(Model.Title.Replace(" ", ""))').jQCloud(words, {
         autoResize: true, 
         fontSize: {
-            from: 0.1,
-            to: 0.05
+            from: 0.08,
+            to: 0.04
         }
     });
 </script>

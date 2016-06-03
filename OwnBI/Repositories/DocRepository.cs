@@ -14,10 +14,10 @@ namespace OwnBI.Repositories
         public static List<dynamic> Index()
         {
             var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
-               .From(0)
-               .Size(10)
                .Index("docs")
-               .Query(q => q.MatchAll()));
+               .Size(50)
+               .MatchAll()
+            );
 
             var list = new List<dynamic>();
             if (res.Total > 0)

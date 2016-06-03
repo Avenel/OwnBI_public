@@ -39,11 +39,11 @@ namespace OwnBI.Controllers
 
         // POST: MetaTag/Create
         [HttpPost]
-        public ActionResult Create(FormCollection collection, string name, string description)
+        public ActionResult Create(FormCollection collection, string name, string description, string dataType)
         {
             try
             {
-                MetaTagRepository.Create(name, description);
+                MetaTagRepository.Create(name, description, dataType);
                 return RedirectToAction("Index");
             }
             catch
@@ -68,11 +68,11 @@ namespace OwnBI.Controllers
 
         // POST: MetaTag/Edit/5
         [HttpPost]
-        public ActionResult Edit(Guid id, FormCollection collection, string name, string description)
+        public ActionResult Edit(Guid id, FormCollection collection, string name, string description, string dataType)
         {
             try
             {
-                MetaTagRepository.Update(id, name, description);
+                MetaTagRepository.Update(id, name, description, dataType);
                 return RedirectToAction("Index");
             }
             catch

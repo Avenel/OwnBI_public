@@ -28,13 +28,14 @@ namespace OwnBI.Repositories
             return list;
         }
 
-        public static MetaTag Create(string name, string description)
+        public static MetaTag Create(string name, string description, string dataType)
         {
             var metaTag = new MetaTag()
             {
                 Id = Guid.NewGuid(),
                 Name = name,
-                Description = description
+                Description = description,
+                DataType = dataType
             };
 
             var response = ElasticClientFactory.Client.Index(metaTag);
@@ -65,12 +66,13 @@ namespace OwnBI.Repositories
             return list;
         }
 
-        public static MetaTag Update(Guid id, string name, string description)
+        public static MetaTag Update(Guid id, string name, string description, string dataType)
         {
 
             var doc = MetaTagRepository.Read(id);
             doc.Name = name;
             doc.Description = description;
+            doc.DataType = dataType;
 
             var response = ElasticClientFactory.Client.Index(doc);
             ElasticClientFactory.Client.Refresh("metatags");

@@ -1,4 +1,5 @@
-﻿using OwnBI.Models;
+﻿using Newtonsoft.Json;
+using OwnBI.Models;
 using OwnBI.Repositories;
 using OwnBI.ViewModels;
 using System;
@@ -169,7 +170,7 @@ namespace OwnBI.Controllers
             IDictionary<string, object> doc = new Dictionary<string, object>();
 
             // Entnehme Request Params alle Doc relevanten Parameter (Meta Tags)
-            var docMetaTags = new Dictionary<MetaTag, string>();
+            var docMetaTags = new Dictionary<MetaTag, object>();
             foreach (var param in Request.Params.AllKeys)
             {
                 if (param.Contains("Doc."))
@@ -179,7 +180,7 @@ namespace OwnBI.Controllers
                     if (paramName != "Id" && paramName != "Type")
                     {
                         metaTag = MetaTagRepository.Read(Guid.Parse(paramName));
-                        doc.Add(metaTag.Name, Request.Params[param]);
+                        doc.Add(metaTag.Name, CastMetaTagValueToDataType(metaTag, Request.Params[param]));
                     } else {
                         doc.Add(paramName, Request.Params[param]);
                     }
@@ -196,6 +197,35 @@ namespace OwnBI.Controllers
             }
 
             return eo;
+        }
+
+        private object CastMetaTagValueToDataType(MetaTag metaTag, string paramValue)
+        {
+            try
+            {
+                if (metaTag.DataType == "number")
+                {
+                    double result = 0.0;
+                    Double.TryParse(paramValue, out result);
+                    return result;
+                }
+
+                if (metaTag.DataType == "datetime")
+                {
+                    return DateTime.Parse(paramValue);
+                }
+
+                if (metaTag.DataType == "object")
+                {
+                    return JsonConvert.DeserializeObject<dynamic>(paramValue);
+                }
+            } catch (Exception e)
+            {
+                paramValue = e.ToString();
+            }
+            
+
+            return paramValue;
         }
 
     }

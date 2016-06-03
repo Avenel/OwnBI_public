@@ -12,5 +12,10 @@ namespace OwnBI.ViewModels
         public TagCloudViewModel DocTypeTagCloud { get; set; }
         public TagCloudViewModel OrtTagCloud { get; set; }
         public TagCloudViewModel KategorieTagCloud { get; set; }
+        public TagCloudViewModel HandelTagCloud { get; set; }
+
+        public double SummeAusgaben { get; set; }
+
+        public double SummeEinnahmen { get; set; }
     }
 }

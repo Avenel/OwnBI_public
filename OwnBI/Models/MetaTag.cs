@@ -19,9 +19,12 @@ namespace OwnBI.Models
             [String(Name = "description", Index = FieldIndexOption.Analyzed)]
             public string Description { get; set; }
 
+            [String(Name = "dataType", Index = FieldIndexOption.Analyzed)]
+            public string DataType { get; set; } // string, number, object, date, datetime
+
             public override string ToString()
             {
-                return string.Format("Id: '{0}', Name: '{1}', Description: '{2}'", Id, Name, Description);
+                return string.Format("Id: '{0}', Name: '{1}', Description: '{2}', DataType: '{3}'", Id, Name, Description, DataType);
             }
     }
 }
