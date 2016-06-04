@@ -28,6 +28,25 @@ namespace OwnBI.Repositories
             return list;
         }
 
+        public static List<dynamic> Search(string query)
+        {
+            var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
+               .Index("docs")
+               .Size(50)
+               .Query(q => q
+                .MatchPhrasePrefix(m => m.Field("name").Query(query))
+                )
+            );
+
+            var list = new List<dynamic>();
+            if (res.Total > 0)
+            {
+                list = res.Hits.Select(h => h.Source as dynamic).ToList();
+            }
+
+            return list;
+        }
+
         public static dynamic Create(Guid type, ExpandoObject content)
         {
             (content as dynamic).Id = Guid.NewGuid();

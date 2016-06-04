@@ -19,7 +19,17 @@
             <div class="form-group">
                 <label class="control-label col-md-2" for="DocType_Name">@metaTag.Name</label>
                 <div class="col-md-10">
-                    <input class="form-control text-box single-line valid" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text">
+                @{
+                    if (metaTag.DataType == "datetime" || metaTag.DataType == "number")
+                    {
+                        <input class="form-control @((metaTag.DataType == "datetime")? "datepicker" : "text-box") valid" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text">
+                    }
+                    else
+                    {
+                        <textarea class="form-control" rows="1" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id"></textarea>
+                    }
+                }
+
                 </div>
             </div>
         }
@@ -31,3 +41,11 @@
         </div>
     </div>
 }
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.datepicker').datetimepicker({
+            format: "DD.MM.YYYY"
+        });
+    });
+</script>

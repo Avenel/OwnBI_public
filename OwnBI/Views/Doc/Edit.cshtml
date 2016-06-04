@@ -22,7 +22,17 @@
             <div class="form-group">
                 <label class="control-label col-md-2" for="DocType_Name">@metaTag.Name</label>
                 <div class="col-md-10">
-                    <input class="form-control @((metaTag.DataType == "datetime")? "datepicker" : ((metaTag.DataType == "number")? "text-box" : "text-area")) valid" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text" value="@Model.Values[metaTag.Id.ToString()]">
+                    @{
+                        if (metaTag.DataType == "datetime" || metaTag.DataType == "number")
+                        {
+                            <input class="form-control @((metaTag.DataType == "datetime")? "datepicker" : "text-box") valid" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text" value="@Model.Values[metaTag.Id.ToString()]">
+                        }
+                        else
+                        {
+                            <textarea class="form-control" rows="1" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id">@Model.Values[metaTag.Id.ToString()]</textarea>
+                        }
+                    }
+                    
                 </div>
             </div>
         }

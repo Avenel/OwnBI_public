@@ -15,11 +15,22 @@ namespace OwnBI.Controllers
     public class DocController : Controller
     {
         // GET: Doc
-        public ActionResult Index()
+        public ActionResult Index(string query)
         {
             var model = new DocIndexViewModel();
+            model.Query = (query != null) ? query : "";
 
-            var docs = DocRepository.Index();
+            var docs = new List<dynamic>();
+            
+            if (model.Query.Length > 0)
+            {
+                docs = DocRepository.Search(model.Query);
+            }
+            else
+            {
+                docs = DocRepository.Index();
+            }
+            
             var list = new List<DocViewModel>();
             foreach(dynamic doc in docs)
             {
@@ -27,6 +38,14 @@ namespace OwnBI.Controllers
                 DocType type = DocTypeRepository.Read(Guid.Parse(doc.type));
                 docModel.Id = Guid.Parse(doc.id);
                 docModel.Type = type.Name;
+                try
+                {
+                    docModel.Name = doc.name;
+                } catch(Exception e)
+                {
+                    docModel.Name = "";
+                }
+                
                 docModel.MetaTags = MetaTagRepository.ReadMany(type.MetaTags);
                 list.Add(docModel);
             }

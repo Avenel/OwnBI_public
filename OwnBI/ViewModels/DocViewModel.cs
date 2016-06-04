@@ -14,6 +14,8 @@ namespace OwnBI.ViewModels
 
         public Guid TypeId { get; set; }
 
+        public string Name { get; set; }
+
         public List<MetaTag> MetaTags { get; set; }
 
         public Dictionary<string, string> Values { get; set; }

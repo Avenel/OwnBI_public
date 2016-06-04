@@ -19,6 +19,22 @@
     </div>
 
     <div class="col-md-10">
+
+        <div class="row" style="padding-bottom: 25px;">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                <form class="form-inline">
+                    <div class="col-sm-11 col-xs-11 col-md-11">
+                        <input class="form-control" style="max-width: none; width: 100%;" type="text" id="query" name="query" placeholder="Suche..." value="@(Model.Query)">
+                    </div>
+                    <div class="col-sm-1 col-xs-1 col-md-1">
+                        <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+                    </div>
+                </form>
+            }
+        </div>
+
         <table class="table">
             <tr>
                 <th>
@@ -26,6 +42,9 @@
                 </th>
                 <th>
                     Type
+                </th>
+                <th>
+                    Name
                 </th>
                 <th></th>
             </tr>
@@ -40,11 +59,14 @@
                         @item.Type
                     </td>
                     <td>
-                        @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                        @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                        @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-                    </td>
-                </tr>
+                        @item.Name
+                        </td>
+                        <td>
+                            @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                            @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                            @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                        </td>
+                    </tr>
             }
 
         </table>
