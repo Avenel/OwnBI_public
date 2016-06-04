@@ -16,7 +16,7 @@
 
         @foreach(var tag in Model.Tags)
         {
-            <text>{ text: '@tag.Key', weight: @tag.Value.ToString() },</text>
+            <text>{ text: '@Html.Raw(tag.Key)', weight: @tag.Value.ToString() },</text>
         }
 
     ];
