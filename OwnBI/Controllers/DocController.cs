@@ -15,16 +15,27 @@ namespace OwnBI.Controllers
     public class DocController : Controller
     {
         // GET: Doc
-        public ActionResult Index(string query)
+        public ActionResult Index(string query, string date, string docType)
         {
             var model = new DocIndexViewModel();
             model.Query = (query != null) ? query : "";
+            model.Date = date;
+            model.DocType = docType;
+            
+            bool docTypeIsSet = (docType != null && docType.Length > 0);
+            bool dateIsSet = (date != null && date.Length > 0);
+
+            var queryWithFilters = model.Query;
+            queryWithFilters += (docTypeIsSet && queryWithFilters.Length > 0) ? ", " : "";
+            queryWithFilters += (docTypeIsSet) ? " type:" + docType : "";
+            queryWithFilters += (dateIsSet && queryWithFilters.Length > 0) ? ", " : "";
+            queryWithFilters += (dateIsSet) ? date : "";
 
             var docs = new List<dynamic>();
-            
-            if (model.Query.Length > 0)
+
+            if (queryWithFilters.Length > 0)
             {
-                docs = DocRepository.Search(model.Query);
+                docs = DocRepository.Search(queryWithFilters);
             }
             else
             {

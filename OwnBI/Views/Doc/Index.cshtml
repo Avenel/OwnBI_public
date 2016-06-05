@@ -5,70 +5,107 @@
     ViewBag.Title = "Index";
 }
 
+
 <h2>Index</h2>
 
-<div class="row">
-
-    <div class="col-md-2">
-        <ul class="nav nav-pills nav-stacked">
-            @foreach (var docType in Model.DocTypes)
-            {
-                <li>@Html.ActionLink("Create New " + docType.Name, "Create", new { type = docType.Id })</li>
-            }
-        </ul>
-    </div>
-
-    <div class="col-md-10">
-
-        <div class="row" style="padding-bottom: 25px;">
-            @using (Html.BeginForm())
-            {
-                @Html.AntiForgeryToken()
-                <form class="form-inline">
-                    <div class="col-sm-11 col-xs-11 col-md-11">
-                        <input class="form-control" style="max-width: none; width: 100%;" type="text" id="query" name="query" placeholder="Suche..." value="@(Model.Query)">
-                    </div>
-                    <div class="col-sm-1 col-xs-1 col-md-1">
-                        <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
-                    </div>
-                </form>
-            }
+<div class="row" style="margin:0; text-align: right; padding-bottom: 5px;">
+    <div class="input-group">
+        <div class="input-group-btn">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Create new ...<span class="caret"></span></button>
+            <ul class="dropdown-menu dropdown-menu-right">
+                @foreach (var docType in Model.DocTypes)
+                {
+                    <li>@Html.ActionLink(docType.Name, "Create", new { type = docType.Id })</li>
+                }
+            </ul>
         </div>
-
-        <table class="table">
-            <tr>
-                <th>
-                    Id
-                </th>
-                <th>
-                    Type
-                </th>
-                <th>
-                    Name
-                </th>
-                <th></th>
-            </tr>
-
-            @foreach (var item in Model.Docs)
-            {
-                <tr>
-                    <td>
-                        @item.Id
-                    </td>
-                    <td>
-                        @item.Type
-                    </td>
-                    <td>
-                        @item.Name
-                        </td>
-                        <td>
-                            @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                            @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                            @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-                        </td>
-                    </tr>
-            }
-
-        </table>
     </div>
 </div>
+
+<div class="row" style="padding-bottom: 15px; margin:0;">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <form>
+            <div class="row" style="margin:0;">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding-left:0; padding-right:0;">
+                    <div class="input-group">
+                        <input class="form-control" style="max-width: none; width: 100%;" type="text" id="query" name="query" placeholder="Suche..." value="@(Model.Query)">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="padding-top: 5px; padding-bottom: 5px; margin:0;">
+                <div class="col-md-3 col-md-offset-6" style="padding-left:0; padding-right:0; padding-bottom: 5px;">
+                    <div class="input-group">
+                        <input type="text" class="form-control datepicker" name="date" style="max-width: none;" placeholder="yyyy-mm-dd" aria-describedby="basic-addon2" value="@Model.Date">
+                        <span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></span>
+                    </div>
+                </div>
+                <div class="col-md-3" style="padding-left:0; padding-right:0;">
+                    <div class="input-group">
+                        <select class="form-control" name="docType" style="max-width: none;">
+                            <option value="">All</option>
+                            @foreach (var docType in Model.DocTypes)
+                            {
+                                <option value="@docType.Id" @((docType.Id.ToString() == Model.DocType) ? "selected" : "")>@docType.Name</option>
+                            }
+                        </select>
+                        <span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align:right;">@Html.ActionLink("Clear Filter", "Index", new { })</div>
+        </form>
+    }
+</div>
+
+@if (@Model.Docs.Count == 0)
+{
+    <p class="bg-info" style="padding: 15px;">Die Suche lieferte keine Ergebnisse.</p>
+}
+
+<table class="table">
+    @if (@Model.Docs.Count > 0)
+    {
+        <tr>
+            <th>
+                Type
+            </th>
+            <th>
+                Name
+            </th>
+            <th></th>
+        </tr>
+    }
+
+    @foreach (var item in Model.Docs)
+    {
+        <tr>
+            <td>
+                @item.Type
+            </td>
+            <td>
+                @item.Name
+            </td>
+            <td style="text-align:right;">
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+            </td>
+        </tr>
+    }
+
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.datepicker').datetimepicker({
+            format: "YYYY-MM-DD"
+        });
+    });
+</script>
