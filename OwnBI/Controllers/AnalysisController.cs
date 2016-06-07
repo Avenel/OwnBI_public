@@ -35,8 +35,8 @@ namespace OwnBI.Controllers
             model.SelectedCategories = (categories != null) ? categories  : new List<string>();
             model.SelectedFacts = (facts != null)? facts : new List<string>();
 
-            var selectedCategoryNames = model.Categories.Where(c => categories.Contains(c.Key.ToString())).Select(c => c.Value.Name).ToList<string>();
-            var selectedFactNames = model.Facts.Where(c => facts.Contains(c.Key.ToString())).Select(c => c.Value.Name).ToList<string>();
+            var selectedCategoryNames = (categories != null) ? model.Categories.Where(c => categories.Contains(c.Key.ToString())).Select(c => c.Value.Name).ToList<string>() : new List<string>();
+            var selectedFactNames = (facts != null) ? model.Facts.Where(c => facts.Contains(c.Key.ToString())).Select(c => c.Value.Name).ToList<string>() : new List<string>();
 
             var valueList = new List<float>();
             var labelList = new List<string>();

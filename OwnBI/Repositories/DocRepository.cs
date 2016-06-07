@@ -80,6 +80,7 @@ namespace OwnBI.Repositories
             var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
                 .Index("docs")
                 .From(0)
+                .Size(1000)
                 .MatchAll()
                 .Aggregations(a =>
                     a.Terms("tagcloud", ta => ta.Field(category.ToLower())
