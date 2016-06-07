@@ -51,7 +51,7 @@
     <div class="col-md-6">
         @Html.Partial("_chart", new OwnBI.ViewModels.ChartViewModel()
         {
-            Title = "Ausgaben pro Kategorie in €",
+            Title = "Ausgaben in €",
             Height = 300,
             Type = "bar",
             Values = new List<float>(Model.KategorieTagCloud.Tags.Values),
@@ -62,7 +62,7 @@
     <div class="col-md-6">
         @Html.Partial("_chart", new OwnBI.ViewModels.ChartViewModel()
         {
-            Title = "Ausgaben pro Handel in €",
+            Title = "Ausgaben in €",
             Height = 300,
             Type = "bar",
             Values = new List<float>(Model.HandelTagCloud.Tags.Values),

@@ -23,7 +23,7 @@
         data: {
             labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Labels)),
             datasets: [{
-                label: "Ausgaben pro Kategorie in €",
+                label: "",
                 data: @(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Values)),
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',

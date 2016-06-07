@@ -74,6 +74,36 @@ namespace OwnBI.Repositories
             return list;
         }
 
+        public static Dictionary<string, float> Aggregate(string category, string fact)
+        {
+            
+            var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
+                .Index("docs")
+                .From(0)
+                .MatchAll()
+                .Aggregations(a =>
+                    a.Terms("tagcloud", ta => ta.Field(category.ToLower())
+                        .Aggregations(aa =>
+                            aa.Sum("summe", ts => ts.Field(fact.ToLower()))
+                        )
+                    )
+                )
+            );
+
+            var values = new Dictionary<string, float>();
+            foreach (var tag in (res.Aggregations["tagcloud"] as Nest.BucketAggregate).Items)
+            {
+                var nestTag = tag as Nest.KeyedBucket;
+                double sum = 0.0;
+                var sumAggs = (nestTag.Aggregations["summe"] as Nest.ValueAggregate);
+                sum = sumAggs.Value.Value;
+
+                values.Add(nestTag.Key, (float)sum);
+            }
+
+            return values;
+        }
+
         public static dynamic Create(Guid type, ExpandoObject content)
         {
             (content as dynamic).Id = Guid.NewGuid();
