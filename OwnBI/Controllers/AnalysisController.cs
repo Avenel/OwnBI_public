@@ -54,11 +54,14 @@ namespace OwnBI.Controllers
                     valueList.Add(values);
                     if (selectedCategoryTypes[i] == "datetime")
                     {
-                        labelList = aggs.Keys.ToList<string>().Select(s => String.Format("{0:dd.MM.yyyy}", new DateTime(long.Parse(s)))).ToList<string>();
+                        labelList = aggs.Keys.ToList<string>()
+                            .Select(s => String.Format("{0:dd.MM.yyyy}", new DateTime(long.Parse(s), DateTimeKind.Utc)))
+                            .ToList<string>();
                     } else 
                     {
                         labelList = aggs.Keys.ToList<string>();
                     }
+                    var date = new DateTime(long.Parse("1464825600000"));
                     
                     titleList.Add(fact);
                 }

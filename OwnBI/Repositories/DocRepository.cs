@@ -83,7 +83,7 @@ namespace OwnBI.Repositories
                 .Size(1000)
                 .MatchAll()
                 .Aggregations(a =>
-                    a.Terms("tagcloud", ta => ta.Field(category.ToLower())
+                    a.Terms("tagcloud", ta => ta.Size(1000).Field(category.ToLower())
                         .Aggregations(aa =>
                             aa.Sum("summe", ts => ts.Field(fact.ToLower()))
                         )
