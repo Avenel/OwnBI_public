@@ -8,41 +8,54 @@
 
 <div class="row">
     <div class="col-md-2">
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
-        <div class="col-md-12">
-            <div class="form-group">
-                <label for="categories">Categories</label>
-                <select multiple name="categories" class="form-control;" style="height:200px; width:100%;">
-                    @foreach (var category in Model.Categories)
-                    {
-                        <option value="@category.Key" @((Model.SelectedCategories.Contains(category.Key)) ? "selected" : "")>@category.Value.Name</option>
-                    }
-                </select>
-            </div>
-        </div>
-
-        <div class="col-md-12">
-            <div class="form-group">
-                <label for="facts">Facts</label>
-                <select multiple name="facts" class="form-control;" style="height:200px; width:100%;">
-                    @foreach (var fact in Model.Facts)
-                    {
-                        <option value="@fact.Key" @((Model.SelectedFacts.Contains(fact.Key)) ? "selected" : "")>@fact.Value.Name</option>
-                    }
-                </select>
-            </div>
-        </div>
-
-        <div class="col-md-12">
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Apply" class="btn btn-default" />
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="categories">Categories</label>
+                    <select multiple name="categories" class="form-control;" style="width:100%;">
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.Key" @((Model.SelectedCategories.Contains(category.Key)) ? "selected" : "")>@category.Value.Name</option>
+                        }
+                    </select>
                 </div>
             </div>
-        </div>
-    }
+
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="facts">Facts</label>
+                    <select multiple name="facts" class="form-control;" style="width:100%;">
+                        @foreach (var fact in Model.Facts)
+                        {
+                            <option value="@fact.Key" @((Model.SelectedFacts.Contains(fact.Key)) ? "selected" : "")>@fact.Value.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="input-group">
+                    <select class="form-control" name="docType" style="max-width: none;">
+                        <option value="">All</option>
+                        @foreach (var docType in Model.DocTypes)
+                        {
+                            <option value="@docType.Id" @((docType.Id.ToString() == Model.DocType) ? "selected" : "")>@docType.Name</option>
+                        }
+                    </select>
+                    <span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></span>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Apply" class="btn btn-default" />
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 
     <div class="col-md-10">

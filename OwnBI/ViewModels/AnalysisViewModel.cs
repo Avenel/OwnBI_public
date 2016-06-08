@@ -24,5 +24,7 @@ namespace OwnBI.ViewModels
 
         public List<string> SelectedCategories { get; set; }
 
+        public List<DocType> DocTypes { get; set; }
+
     }
 }

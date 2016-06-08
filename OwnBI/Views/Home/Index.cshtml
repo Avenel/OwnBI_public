@@ -54,8 +54,9 @@
             Title = "Ausgaben in €",
             Height = 300,
             Type = "bar",
-            Values = new List<float>(Model.KategorieTagCloud.Tags.Values),
-            Labels = new List<string>(Model.KategorieTagCloud.Tags.Keys)
+            Values = new List<List<float>>() { Model.KategorieTagCloud.Tags.Values.ToList<float>() },
+            Categories = new List<string>(Model.KategorieTagCloud.Tags.Keys),
+            SeriesNames = new List<string>() { "Preis" }
         })
     </div>
 
@@ -65,8 +66,9 @@
             Title = "Ausgaben in €",
             Height = 300,
             Type = "bar",
-            Values = new List<float>(Model.HandelTagCloud.Tags.Values),
-            Labels = new List<string>(Model.HandelTagCloud.Tags.Keys)
+            Values = new List<List<float>>(){Model.HandelTagCloud.Tags.Values.ToList<float>()},
+            Categories = new List<string>(Model.HandelTagCloud.Tags.Keys),
+            SeriesNames = new List<string>() { "Preis" }
         })
     </div>
 </div>
