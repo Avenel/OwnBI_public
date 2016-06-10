@@ -12,7 +12,7 @@ namespace OwnBI.Controllers
     public class AnalysisController : Controller
     {
         // GET: Analysis
-        public ActionResult Index(List<string> categories, List<string> facts, string query, string  docType)
+        public ActionResult Index(List<string> categories, List<string> facts, string query, string  docType, string chartType)
         {
             var model = new AnalysisViewModel();
             
@@ -35,6 +35,24 @@ namespace OwnBI.Controllers
             model.SelectedCategories = (categories != null) ? categories  : new List<string>();
             model.SelectedFacts = (facts != null)? facts : new List<string>();
 
+            if (chartType == null)
+                chartType = "bar";
+
+            model.ChartType = chartType;
+
+            model.Query = query;
+            Guid docTypeGuid;
+            if (Guid.TryParse(docType, out docTypeGuid))
+            {
+                if (query == null)
+                    query = "";
+
+                if (query.Length > 0)
+                    query += ", ";
+
+                query += "type:" + docType;
+            }
+
             var selectedCategoryNames = (categories != null) ? model.Categories.Where(c => categories.Contains(c.Key.ToString())).Select(c => c.Value.Name).ToList<string>() : new List<string>();
             var selectedCategoryTypes = (categories != null) ? model.Categories.Where(c => categories.Contains(c.Key.ToString())).Select(c => c.Value.DataType).ToList<string>() : new List<string>();
             var selectedFactNames = (facts != null) ? model.Facts.Where(c => facts.Contains(c.Key.ToString())).Select(c => c.Value.Name).ToList<string>() : new List<string>();
@@ -49,7 +67,7 @@ namespace OwnBI.Controllers
             {
                 foreach (var fact in selectedFactNames)
                 {
-                    var aggs = DocRepository.Aggregate(category, fact);
+                    var aggs = DocRepository.Aggregate(category, fact, query);
                     var values = (selectedCategoryNames.Count > 0 && selectedFactNames.Count > 0) ? aggs.Values.ToList<float>() : new List<float>();
                     valueList.Add(values);
                     if (selectedCategoryTypes[i] == "datetime")
@@ -75,8 +93,8 @@ namespace OwnBI.Controllers
                 Categories = labelList,
                 SeriesNames = titleList,
                 Values = valueList,
-                Type = "bar",
-                Title = "Bla."
+                Type = model.ChartType,
+                Title = ""
             };
 
             model.DocType = docType;

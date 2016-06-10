@@ -33,17 +33,42 @@
                             data: @(Newtonsoft.Json.JsonConvert.SerializeObject(values)),
                             backgroundColor: [
                                 @{
-                                    foreach(var vals in values)
+                                    if (Model.Type == "bar" || Model.Type == "line")
                                     {
-                                        @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.BackGroundColors[i]) + ",")
+                                        foreach(var vals in values)
+                                        {
+                                            @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.BackGroundColors[i]) + ",")
+                                        }
                                     }
+                                    else
+                                    {
+                                        var j = 0;
+                                        foreach(var vals in values)
+                                        {
+                                            @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.BackGroundColors[j % Model.BackGroundColors.Count]) + ",")
+                                            j++;
+                                        }
+                                    }
+
                                 }
                             ],
                             borderColor: [
                                 @{
-                                    foreach(var vals in values)
+                                    if (Model.Type == "bar" || Model.Type == "line")
                                     {
-                                        @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.BorderColors[i]) + ",")
+                                        foreach(var vals in values)
+                                        {
+                                            @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.BorderColors[i]) + ",")
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var j = 0;
+                                        foreach(var vals in values)
+                                        {
+                                            @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.BorderColors[j % Model.BorderColors.Count]) + ",")
+                                            j++;
+                                        }
                                     }
                                 }
                             ],

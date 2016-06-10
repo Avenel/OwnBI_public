@@ -30,37 +30,12 @@ namespace OwnBI.Repositories
 
         public static List<dynamic> Search(string query)
         {
-            var queryNodes = query.Split(',');
-            var listOfQueries = new List<Nest.QueryContainer>();
-
-            // build query 
-            foreach (var queryNode in queryNodes)
-            {   
-                var queryBase = new Nest.MatchPhrasePrefixQuery();
-
-                if (queryNode.IndexOf(':') >= 0)
-                {
-                    var typeAndValue = queryNode.Split(':');
-                    var type = typeAndValue[0].Trim().ToLower();
-                    var value = typeAndValue[1].Trim();
-                    queryBase.Field = new Nest.Field();
-                    queryBase.Field.Name = type;
-                    queryBase.Query = value;
-                } else {
-                    // use _allField
-                    queryBase.Field = new Nest.Field();
-                    queryBase.Field.Name = "_all";
-                    queryBase.Query = queryNode;
-                }
-                listOfQueries.Add(new Nest.QueryContainer(queryBase));
-            }
-
             var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
                .Index("docs")
                .Size(50)
                .Query(q => q
                    .Bool(b => b
-                        .Must(listOfQueries.ToArray())
+                        .Must(BuildQueryContainer(query))
                     )
                 )
             );
@@ -74,14 +49,18 @@ namespace OwnBI.Repositories
             return list;
         }
 
-        public static Dictionary<string, float> Aggregate(string category, string fact)
+        public static Dictionary<string, float> Aggregate(string category, string fact, string query)
         {
             
             var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
                 .Index("docs")
                 .From(0)
                 .Size(1000)
-                .MatchAll()
+                .Query(q => q
+                   .Bool(b => b
+                        .Must(BuildQueryContainer(query))
+                    )
+                )
                 .Aggregations(a =>
                     a.Terms("tagcloud", ta => ta.Size(1000).Field(category.ToLower())
                         .Aggregations(aa =>
@@ -150,6 +129,38 @@ namespace OwnBI.Repositories
             ElasticClientFactory.Client.Refresh("docs");
 
             return doc;
+        }
+
+        private static Nest.QueryContainer[] BuildQueryContainer(string query)
+        {
+            var queryNodes = query.Split(',');
+            var listOfQueries = new List<Nest.QueryContainer>();
+
+            // build query 
+            foreach (var queryNode in queryNodes)
+            {
+                var queryBase = new Nest.MatchPhrasePrefixQuery();
+
+                if (queryNode.IndexOf(':') >= 0)
+                {
+                    var typeAndValue = queryNode.Split(':');
+                    var type = typeAndValue[0].Trim().ToLower();
+                    var value = typeAndValue[1].Trim();
+                    queryBase.Field = new Nest.Field();
+                    queryBase.Field.Name = type;
+                    queryBase.Query = value;
+                }
+                else
+                {
+                    // use _allField
+                    queryBase.Field = new Nest.Field();
+                    queryBase.Field.Name = "_all";
+                    queryBase.Query = queryNode;
+                }
+                listOfQueries.Add(new Nest.QueryContainer(queryBase));
+            }
+
+            return listOfQueries.ToArray();
         }
 
     }

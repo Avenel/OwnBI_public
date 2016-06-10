@@ -26,5 +26,7 @@ namespace OwnBI.ViewModels
 
         public List<DocType> DocTypes { get; set; }
 
+        public string ChartType { get; set; }
+
     }
 }

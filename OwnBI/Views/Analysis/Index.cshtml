@@ -7,59 +7,128 @@
 <h2>Analysis</h2>
 
 <div class="row">
-    <div class="col-md-2">
-        @using (Html.BeginForm())
-        {
-            @Html.AntiForgeryToken()
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="categories">Categories</label>
-                    <select multiple name="categories" class="form-control;" style="width:100%;">
-                        @foreach (var category in Model.Categories)
-                        {
-                            <option value="@category.Key" @((Model.SelectedCategories.Contains(category.Key)) ? "selected" : "")>@category.Value.Name</option>
-                        }
-                    </select>
-                </div>
-            </div>
 
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="facts">Facts</label>
-                    <select multiple name="facts" class="form-control;" style="width:100%;">
-                        @foreach (var fact in Model.Facts)
-                        {
-                            <option value="@fact.Key" @((Model.SelectedFacts.Contains(fact.Key)) ? "selected" : "")>@fact.Value.Name</option>
-                        }
-                    </select>
-                </div>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="row" style="margin:0;">
+        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2"></div>
+        <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10" style="padding-bottom: 15px;">
+            <div class="input-group" style="width: 100%">
+                <input class="form-control" style="max-width: none; width: 100%;" type="text" id="query" name="query" placeholder="Suche..." value="@(Model.Query)">
             </div>
-
-            <div class="col-md-12">
-                <div class="input-group">
-                    <select class="form-control" name="docType" style="max-width: none;">
-                        <option value="">All</option>
-                        @foreach (var docType in Model.DocTypes)
-                        {
-                            <option value="@docType.Id" @((docType.Id.ToString() == Model.DocType) ? "selected" : "")>@docType.Name</option>
-                        }
-                    </select>
-                    <span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></span>
-                </div>
-            </div>
-
-            <div class="col-md-12">
-                <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
-                        <input type="submit" value="Apply" class="btn btn-default" />
-                    </div>
-                </div>
-            </div>
-        }
+        </div>
     </div>
 
+    <div class="col-md-2">
+
+        <div class="col-md-12">
+            <label for="categories">Categories</label>
+            <div class="form-group">
+                <div class="col-md-12" id="allCategories" style="height:100px; border: 1px solid; overflow:auto;">
+                    @foreach (var category in Model.Categories.Where(c => !Model.SelectedCategories.Contains(c.Key)).ToList())
+                    {
+                        <div data-guid="@category.Key">@category.Value.Name</div>
+                    }
+                </div>
+
+                <div class="col-md-12" id="chosenCategories" style="height: 100px; border: 1px solid; overflow:auto; margin-top: 5px;">
+                    @foreach (var category in Model.SelectedCategories)
+                    {
+                        <div data-guid="@category">@Model.Categories.Where(c => c.Key == category).Select(c => c.Value.Name).FirstOrDefault()</div>
+                    }
+                </div>
+
+                <select multiple name="categories" id="categories" class="form-control;" style="width:100%; display: none;">
+                    
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <label for="facts">Facts</label>
+            <div class="form-group">
+                <select multiple name="facts" class="form-control;" style="width:100%;">
+                    @foreach (var fact in Model.Facts)
+                    {
+                        <option value="@fact.Key" @((Model.SelectedFacts.Contains(fact.Key)) ? "selected" : "")>@fact.Value.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-12" style="margin-bottom: 15px;">
+            <label for="facts">ChartType</label>
+            <div class="input-group">
+                <select class="form-control" name="chartType" style="max-width: none;">
+                    <option value="bar" @((Model.ChartType == "bar")? "selected" : "")>Bar</option>
+                    <option value="line" @((Model.ChartType == "line")? "selected" : "")>Line</option>
+                    <option value="pie" @((Model.ChartType == "pie")? "selected" : "")>Pie</option>
+                    <option value="doughnut" @((Model.ChartType == "doughnut")? "selected" : "")>Doughnut</option>
+                </select>
+                <span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></span>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <label for="facts">DocType</label>
+            <div class="input-group">
+                <select class="form-control" name="docType" style="max-width: none;">
+                    <option value="">All</option>
+                    @foreach (var docType in Model.DocTypes)
+                    {
+                        <option value="@docType.Id" @((docType.Id.ToString() == Model.DocType) ? "selected" : "")>@docType.Name</option>
+                    }
+                </select>
+                <span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></span>
+            </div>
+        </div>
+
+        <div class="col-md-12" style="padding-top: 15px;">
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Apply" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
     <div class="col-md-10">
         @Html.Partial("_chart", Model.ChartModel)
     </div>
 
 </div>
+
+<script>
+    $(document).ready(function () {
+        var categoryList = document.getElementById("allCategories");
+        var sortable = new Sortable(categoryList, {
+            sort: true,
+            scroll: true,
+            group: { name: "category", pull: true, put: true }
+        });
+
+        var categoryList = document.getElementById("chosenCategories");
+        var sortable = new Sortable(categoryList, {
+            sort: true,
+            scroll: true,
+            group: { name: "category", pull: true, put: true }
+        });
+
+        $("form").submit(function (event) {
+            for (var i = 0; i < $("#chosenCategories")[0].children.length; i++) {
+                var elem = $("#chosenCategories")[0].children[i];
+                var val = $(elem).data("guid");
+                var option = $("<option>")
+                .val(val)
+                .attr("selected", "true");
+
+                $('#categories').append($(option));
+            }
+        });
+    })
+    
+
+
+</script>
