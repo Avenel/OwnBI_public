@@ -74,36 +74,53 @@ namespace OwnBI.Controllers
             var titleList = new List<string>();
 
             // Todo Build Datasets for chartjs markup
-            var i=0;
-            /*foreach(var category in selectedCategoryNames)
-            {*/
+            if (selectedCategoryNames.Count > 1)
+            {
+                var aggs = DocRepository.Aggregate(selectedCategoryNames, selectedFactNames[0], query);
+                titleList = aggs.Keys.Select(k => k.Split('_')[1]).Distinct().ToList();
+
+                var groupKeys = aggs.Keys.Select(k => k.Split('_')[0]).Distinct().ToList();
+                labelList = groupKeys;
+
+                foreach (var group in groupKeys)
+                {
+                    var valuePairs = aggs.Where(a => a.Key.ToLower().Contains(group.ToLower())).ToList();
+                    
+                    var values = new List<float>();
+                    foreach (var title in titleList)
+                    {
+                        var pair = valuePairs.Where(p => p.Key.ToLower().Contains(title.ToLower())).ToList();
+
+                        if (pair.Count> 0)
+                        {
+                            values.Add(pair[0].Value);
+                        }
+                        else
+                        {
+                            values.Add(0.0f);
+                        }
+                    }
+
+                    valueList.Add(values);
+                }
+            }
+            else
+            {
                 foreach (var fact in selectedFactNames)
                 {
                     var aggs = DocRepository.Aggregate(selectedCategoryNames, fact, query);
                     var values = (selectedCategoryNames.Count > 0 && selectedFactNames.Count > 0) ? aggs.Values.ToList<float>() : new List<float>();
                     valueList.Add(values);
-                    if (selectedCategoryTypes[i] == "datetime")
-                    {
-                        labelList = aggs.Keys.ToList<string>()
-                            .Select(s => String.Format("{0:dd.MM.yyyy}", new DateTime(long.Parse(s), DateTimeKind.Utc)))
-                            .ToList<string>();
-                    } else 
-                    {
-                        labelList = aggs.Keys.ToList<string>();
-                    }
-                    var date = new DateTime(long.Parse("1464825600000"));
-                    
-                    titleList.Add(fact);
+                    titleList = aggs.Keys.Select(k => k.Replace("_", "")).ToList<string>().Distinct().ToList();
+                    labelList.Add(fact);
                 }
-                i++;
-            //}
-            
+            }
 
             model.ChartModel = new ChartViewModel()
             {
                 Height = 400,
-                Categories = labelList,
-                SeriesNames = titleList,
+                Categories = titleList,
+                SeriesNames = labelList,
                 Values = valueList,
                 Type = model.ChartType,
                 Title = "",

@@ -210,7 +210,7 @@ namespace OwnBI.Repositories
             foreach (var lvl in bucket.Items)
             {
                 var nestTag = lvl as Nest.KeyedBucket;
-                var nestTagKey = key + "_" + nestTag.Key;
+                var nestTagKey = key + ((key.Length > 0)? "_" : "") + nestTag.Key;
 
                 if (nestTag.Aggregations != null && nestTag.Aggregations.ContainsKey("level" + i) )
                 {

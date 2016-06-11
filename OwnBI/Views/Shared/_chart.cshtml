@@ -29,7 +29,7 @@
                     {
                         <text>
                         {
-                            label: "@Model.SeriesNames[i]",
+                            label: "@Html.Raw(Model.SeriesNames[i])",
                             data: @(Newtonsoft.Json.JsonConvert.SerializeObject(values)),
                             backgroundColor: [
                                 @{
@@ -37,7 +37,7 @@
                                     {
                                         foreach(var vals in values)
                                         {
-                                            @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.BackGroundColors[i]) + ",")
+                                            @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.BackGroundColors[i % Model.BackGroundColors.Count]) + ",")
                                         }
                                     }
                                     else
@@ -58,7 +58,7 @@
                                     {
                                         foreach(var vals in values)
                                         {
-                                            @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.BorderColors[i]) + ",")
+                                            @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.BorderColors[i % Model.BorderColors.Count]) + ",")
                                         }
                                     }
                                     else
