@@ -75,11 +75,11 @@ namespace OwnBI.Controllers
 
             // Todo Build Datasets for chartjs markup
             var i=0;
-            foreach(var category in selectedCategoryNames)
-            {
+            /*foreach(var category in selectedCategoryNames)
+            {*/
                 foreach (var fact in selectedFactNames)
                 {
-                    var aggs = DocRepository.Aggregate(category, fact, query);
+                    var aggs = DocRepository.Aggregate(selectedCategoryNames, fact, query);
                     var values = (selectedCategoryNames.Count > 0 && selectedFactNames.Count > 0) ? aggs.Values.ToList<float>() : new List<float>();
                     valueList.Add(values);
                     if (selectedCategoryTypes[i] == "datetime")
@@ -96,7 +96,7 @@ namespace OwnBI.Controllers
                     titleList.Add(fact);
                 }
                 i++;
-            }
+            //}
             
 
             model.ChartModel = new ChartViewModel()
