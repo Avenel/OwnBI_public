@@ -32,7 +32,8 @@ namespace OwnBI.Controllers
                                     .ToDictionary<MetaTag, string>(mt => mt.Id.ToString());
             }
 
-            model.SelectedCategories = (categories != null) ? categories  : new List<string>();
+            categories = (categories != null) ? categories  : new List<string>();
+            model.SelectedCategories = categories;
             model.SelectedFacts = (facts != null)? facts : new List<string>();
 
             if (chartType == null)
@@ -53,8 +54,19 @@ namespace OwnBI.Controllers
                 query += "type:" + docType;
             }
 
-            var selectedCategoryNames = (categories != null) ? model.Categories.Where(c => categories.Contains(c.Key.ToString())).Select(c => c.Value.Name).ToList<string>() : new List<string>();
-            var selectedCategoryTypes = (categories != null) ? model.Categories.Where(c => categories.Contains(c.Key.ToString())).Select(c => c.Value.DataType).ToList<string>() : new List<string>();
+
+            var selectedCategoryNames = new List<string>();
+            var selectedCategoryTypes = new List<string>();
+
+            // in order to save order of selected categories, use iteration
+            foreach(var cat in categories)
+            {
+                var catName = model.Categories.Where(c => c.Value.Id.ToString() == cat).Select(c => c.Value.Name).FirstOrDefault();
+                var catType = model.Categories.Where(c => c.Value.Id.ToString() == cat).Select(c => c.Value.DataType).FirstOrDefault();
+                selectedCategoryNames.Add(catName);
+                selectedCategoryTypes.Add(catType);
+            }
+            
             var selectedFactNames = (facts != null) ? model.Facts.Where(c => facts.Contains(c.Key.ToString())).Select(c => c.Value.Name).ToList<string>() : new List<string>();
 
             var valueList = new List<List<float>>();
@@ -94,7 +106,8 @@ namespace OwnBI.Controllers
                 SeriesNames = titleList,
                 Values = valueList,
                 Type = model.ChartType,
-                Title = ""
+                Title = "",
+                HidePanel = true
             };
 
             model.DocType = docType;

@@ -18,6 +18,8 @@ namespace OwnBI.ViewModels
         private string _chartID = Guid.NewGuid().ToString();
         public string ChartID { get { return _chartID; } }
 
+        public bool HidePanel { get; set; }
+
         public List<string> BackGroundColors
         {
             get

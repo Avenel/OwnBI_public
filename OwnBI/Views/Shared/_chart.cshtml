@@ -7,7 +7,7 @@
 
 
 <div class="panel panel-default">
-    <div class="panel-heading">@Model.Title</div>
+    <div class="panel-heading" style="@((Model.HidePanel)? "display:none;" : "")">@Model.Title</div>
     <div class="panel-body" style="text-align: right;">
         <canvas id="chart_@Model.ChartID"
                 width="@((Model.Width != null)? "auto" : Model.Width.ToString())"
