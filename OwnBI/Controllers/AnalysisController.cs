@@ -12,7 +12,7 @@ namespace OwnBI.Controllers
     public class AnalysisController : Controller
     {
         // GET: Analysis
-        public ActionResult Index(List<string> categories, List<string> facts, string query, string  docType, string chartType)
+        public ActionResult Index(List<string> categories, List<string> facts, string query, string  docType, string chartType, string aggFunc)
         {
             var model = new AnalysisViewModel();
             
@@ -39,7 +39,11 @@ namespace OwnBI.Controllers
             if (chartType == null)
                 chartType = "bar";
 
+            if (aggFunc == null)
+                aggFunc = "sum";
+
             model.ChartType = chartType;
+            model.AggFunc = aggFunc;
 
             model.Query = query;
             Guid docTypeGuid;
@@ -76,7 +80,7 @@ namespace OwnBI.Controllers
             // Todo Build Datasets for chartjs markup
             if (selectedCategoryNames.Count > 1)
             {
-                var aggs = DocRepository.Aggregate(selectedCategoryNames, selectedFactNames[0], query);
+                var aggs = DocRepository.Aggregate(selectedCategoryNames, selectedFactNames[0], query, aggFunc);
                 titleList = aggs.Keys.Select(k => k.Split('_')[1]).Distinct().ToList();
 
                 var groupKeys = aggs.Keys.Select(k => k.Split('_')[0]).Distinct().ToList();
@@ -108,7 +112,7 @@ namespace OwnBI.Controllers
             {
                 foreach (var fact in selectedFactNames)
                 {
-                    var aggs = DocRepository.Aggregate(selectedCategoryNames, fact, query);
+                    var aggs = DocRepository.Aggregate(selectedCategoryNames, fact, query, aggFunc);
                     var values = (selectedCategoryNames.Count > 0 && selectedFactNames.Count > 0) ? aggs.Values.ToList<float>() : new List<float>();
                     valueList.Add(values);
                     titleList = aggs.Keys.Select(k => k.Replace("_", "")).ToList<string>().Distinct().ToList();

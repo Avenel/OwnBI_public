@@ -70,6 +70,19 @@
             </div>
         </div>
 
+        <div class="col-md-12" style="margin-bottom: 15px;">
+            <label for="facts">Agg Func</label>
+            <div class="input-group">
+                <select class="form-control" name="aggFunc" style="max-width: none;">
+                    <option value="sum" @((Model.AggFunc == "sum") ? "selected" : "")>Sum</option>
+                    <option value="avg" @((Model.AggFunc == "avg") ? "selected" : "")>Avg</option>
+                    <option value="min" @((Model.AggFunc == "min") ? "selected" : "")>Min</option>
+                    <option value="max" @((Model.AggFunc == "max") ? "selected" : "")>Max</option>
+                </select>
+                <span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></span>
+            </div>
+        </div>
+
         <div class="col-md-12">
             <label for="facts">DocType</label>
             <div class="input-group">

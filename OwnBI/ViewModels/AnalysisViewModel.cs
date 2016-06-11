@@ -28,5 +28,7 @@ namespace OwnBI.ViewModels
 
         public string ChartType { get; set; }
 
+        public string AggFunc { get; set; }
+
     }
 }

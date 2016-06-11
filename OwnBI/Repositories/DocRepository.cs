@@ -52,7 +52,7 @@ namespace OwnBI.Repositories
         }
 
         // level<category, value>
-        public static Dictionary<string, float> Aggregate(List<string> categories, string fact, string query)
+        public static Dictionary<string, float> Aggregate(List<string> categories, string fact, string query, string aggFunc)
         {
             var values = new Dictionary<string, float>();
 
@@ -72,14 +72,23 @@ namespace OwnBI.Repositories
                         if (categories.Count == 1)
                         {
                             return a.Terms("level0", ta => ta.Size(1000).Field(categories[0].ToLower())
-                                .Aggregations(aa =>
-                                    aa.Sum("summe", ts => ts.Field(fact.ToLower()))
-                                )
+                                .Aggregations(aa => {
+                                    if (aggFunc == "avg")
+                                        return aa.Average("summe", ts => ts.Field(fact.ToLower()));
+
+                                    if (aggFunc == "min")
+                                        return aa.Min("summe", ts => ts.Field(fact.ToLower()));
+
+                                    if (aggFunc == "max")
+                                        return aa.Max("summe", ts => ts.Field(fact.ToLower()));
+
+                                    return aa.Sum("summe", ts => ts.Field(fact.ToLower()));
+                                })
                             );
                         }
                         else
                         {
-                            return BuildAggregationContainer(a, 0, categories.Count - 1, categories, fact.ToLower());         
+                            return BuildAggregationContainer(a, 0, categories.Count - 1, categories, fact.ToLower(), aggFunc);         
                         }
                     });
 
@@ -185,19 +194,29 @@ namespace OwnBI.Repositories
         }
 
         private static AggregationContainerDescriptor<ExpandoObject> BuildAggregationContainer(AggregationContainerDescriptor<ExpandoObject> a, 
-                                                                                                int i, int max, List<string> categories, string fact)
+                                                                                                int i, int max, List<string> categories, string fact,
+                                                                                                string aggFunc)
         {
             return a.Terms("level" + i, ta => ta.Size(1000).Field(categories[i].ToLower())
                 .Aggregations(aa =>
                     {
                         if (i == max)
                         {
+                            if (aggFunc == "avg")
+                                return aa.Average("summe", ts => ts.Field(fact.ToLower()));
+
+                            if (aggFunc == "min")
+                                return aa.Min("summe", ts => ts.Field(fact.ToLower()));
+
+                            if (aggFunc == "max")
+                                return aa.Max("summe", ts => ts.Field(fact.ToLower()));
+
                             return aa.Sum("summe", ts => ts.Field(fact.ToLower()));
                         }
                         else
                         {
                             i++;
-                            return BuildAggregationContainer(aa, i, categories.Count - 1, categories, fact.ToLower());        
+                            return BuildAggregationContainer(aa, i, categories.Count - 1, categories, fact.ToLower(), aggFunc);        
                         }
                     }
                 )
