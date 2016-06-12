@@ -56,59 +56,73 @@ namespace OwnBI.Repositories
         {
             var values = new Dictionary<string, float>();
 
-            if (categories != null && categories.Count > 0 && fact != null && fact.Length > 0)
+            try
             {
-                var searchQuery = new SearchDescriptor<ExpandoObject>()
-                    .Index("docs")
-                    .From(0)
-                    .Size(1000)
-                    .Query(q => q
-                        .Bool(b => b
-                            .Must(BuildQueryContainer(query))
+                if (categories != null && categories.Count > 0 && fact != null && fact.Length > 0)
+                {
+                    var searchQuery = new SearchDescriptor<ExpandoObject>()
+                        .Index("docs")
+                        .From(0)
+                        .Size(1000)
+                        .Query(q => q
+                            .Bool(b => b
+                                .Must(BuildQueryContainer(query))
+                            )
                         )
-                    )
-                    .Aggregations(a =>
+                        .Aggregations(a =>
+                        {
+                            if (categories.Count == 1)
+                            {
+                                return a.Terms("level0", ta => ta.Size(1000).Field(categories[0].ToLower())
+                                    .Aggregations(aa =>
+                                    {
+                                        if (aggFunc == "avg")
+                                            return aa.Average("summe", ts => ts.Field(fact.ToLower()));
+
+                                        if (aggFunc == "min")
+                                            return aa.Min("summe", ts => ts.Field(fact.ToLower()));
+
+                                        if (aggFunc == "max")
+                                            return aa.Max("summe", ts => ts.Field(fact.ToLower()));
+
+                                        return aa.Sum("summe", ts => ts.Field(fact.ToLower()));
+                                    })
+                                );
+                            }
+                            else
+                            {
+                                return BuildAggregationContainer(a, 0, categories.Count - 1, categories, fact.ToLower(), aggFunc);
+                            }
+                        });
+
+                    var filenameQuery = @"d:\query.txt";
+                    using (FileStream SourceStream = File.Open(filenameQuery, FileMode.Create))
                     {
-                        if (categories.Count == 1)
-                        {
-                            return a.Terms("level0", ta => ta.Size(1000).Field(categories[0].ToLower())
-                                .Aggregations(aa => {
-                                    if (aggFunc == "avg")
-                                        return aa.Average("summe", ts => ts.Field(fact.ToLower()));
+                        ElasticClientFactory.Client.Serializer.Serialize(searchQuery, SourceStream);
+                    }
 
-                                    if (aggFunc == "min")
-                                        return aa.Min("summe", ts => ts.Field(fact.ToLower()));
+                    var res = ElasticClientFactory.Client.Search<ExpandoObject>(searchQuery);
 
-                                    if (aggFunc == "max")
-                                        return aa.Max("summe", ts => ts.Field(fact.ToLower()));
+                    var filenameResult = @"d:\result.txt";
+                    using (FileStream SourceStream = File.Open(filenameResult, FileMode.Create))
+                    {
+                        ElasticClientFactory.Client.Serializer.Serialize(res.Aggregations, SourceStream);
+                    }
 
-                                    return aa.Sum("summe", ts => ts.Field(fact.ToLower()));
-                                })
-                            );
-                        }
-                        else
-                        {
-                            return BuildAggregationContainer(a, 0, categories.Count - 1, categories, fact.ToLower(), aggFunc);         
-                        }
-                    });
+                    Nest.BucketAggregate firstBucketAggregate = res.Aggregations["level0"] as Nest.BucketAggregate;
+                    ExtractKeyAndValues(values, firstBucketAggregate, 0, "");
 
-                var filenameQuery = @"d:\query.txt";
-                using (FileStream SourceStream = File.Open(filenameQuery, FileMode.Create))
-                {
-                    ElasticClientFactory.Client.Serializer.Serialize(searchQuery, SourceStream);
                 }
-
-                var res = ElasticClientFactory.Client.Search<ExpandoObject>(searchQuery);
-
-                var filenameResult = @"d:\result.txt";
-                using (FileStream SourceStream = File.Open(filenameResult, FileMode.Create))
+            }
+            catch (Exception e)
+            {
+                var filenameError = @"d:\error.txt";
+                if (!File.Exists(filenameError))
                 {
-                    ElasticClientFactory.Client.Serializer.Serialize(res.Aggregations, SourceStream);
+                    // Create a file to write to.
+                    File.WriteAllText(filenameError, e.Message + ": \n" + e.StackTrace);
                 }
-
-                Nest.BucketAggregate firstBucketAggregate = res.Aggregations["level0"] as Nest.BucketAggregate;
-                ExtractKeyAndValues(values, firstBucketAggregate, 0, "");
-                
+                File.AppendAllText(filenameError, "\n" + e.Message + ": \n" + e.StackTrace);
             }
 
             return values;
@@ -169,7 +183,7 @@ namespace OwnBI.Repositories
             // build query 
             foreach (var queryNode in queryNodes)
             {
-                var queryBase = new Nest.MatchPhrasePrefixQuery();
+                var queryBase = new Nest.MatchQuery();// MatchPhrasePrefixQuery();
 
                 if (queryNode.IndexOf(':') >= 0)
                 {
@@ -197,7 +211,9 @@ namespace OwnBI.Repositories
                                                                                                 int i, int max, List<string> categories, string fact,
                                                                                                 string aggFunc)
         {
-            return a.Terms("level" + i, ta => ta.Size(1000).Field(categories[i].ToLower())
+            return a.Terms("level" + i, ta => ta
+                    .Size(1000)
+                    .Field(categories[i].ToLower())
                 .Aggregations(aa =>
                     {
                         if (i == max)

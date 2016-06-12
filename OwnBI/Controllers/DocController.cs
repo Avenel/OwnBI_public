@@ -98,12 +98,15 @@ namespace OwnBI.Controllers
 
         // POST: Doc/Create
         [HttpPost]
-        public ActionResult Create(FormCollection collection, Guid type)
+        public ActionResult Create(FormCollection collection, Guid type, int anzahl)
         {
             try
             {
-                DocRepository.Create(type, parseFormToObject());
-
+                for (int i = 0; i < anzahl; i++)
+                {
+                    DocRepository.Create(type, parseFormToObject());
+                }
+                
                 return RedirectToAction("Index");
             }
             catch (Exception e)

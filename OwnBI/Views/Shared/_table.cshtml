@@ -1,0 +1,46 @@
+﻿@model OwnBI.ViewModels.ChartViewModel
+
+@{
+    ViewBag.Title = "_table";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading" style="@((Model.HidePanel)? "display:none;" : "")">@Model.Title</div>
+    <div class="panel-body" style="text-align: right;">
+        <div class="table-responsive">
+            <table class="table table-condensed table-hover"
+                   style="font-family: 'Arial'; font-weight: 400;">
+                <tr>
+                    @{
+                        <th></th>
+                        foreach (var header in Model.Categories)
+                        {
+                            <th style="text-transform:uppercase; font-weight: 400;">@header</th>
+                        }
+                    }
+                </tr>
+
+                @{
+                    var i = 0;
+                    foreach (var row in Model.SeriesNames)
+                    {
+                        <tr>
+                            <td style="text-transform:uppercase">@row</td>
+                            @{
+                        foreach (var val in Model.Values[i])
+                        {
+                            <td>@val</td>
+                        }
+                            }
+                        </tr>
+                        i++;
+                    }
+                }
+
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
