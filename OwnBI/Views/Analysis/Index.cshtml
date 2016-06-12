@@ -75,6 +75,7 @@
             <div class="input-group">
                 <select class="form-control" name="aggFunc" style="max-width: none;">
                     <option value="sum" @((Model.AggFunc == "sum") ? "selected" : "")>Sum</option>
+                    <option value="count" @((Model.AggFunc == "count") ? "selected" : "")>Count</option>
                     <option value="avg" @((Model.AggFunc == "avg") ? "selected" : "")>Avg</option>
                     <option value="min" @((Model.AggFunc == "min") ? "selected" : "")>Min</option>
                     <option value="max" @((Model.AggFunc == "max") ? "selected" : "")>Max</option>

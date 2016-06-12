@@ -110,7 +110,7 @@ namespace OwnBI.Repositories
                     }
 
                     Nest.BucketAggregate firstBucketAggregate = res.Aggregations["level0"] as Nest.BucketAggregate;
-                    ExtractKeyAndValues(values, firstBucketAggregate, 0, "");
+                    ExtractKeyAndValues(values, firstBucketAggregate, 0, "", (aggFunc == "count"));
 
                 }
             }
@@ -120,9 +120,9 @@ namespace OwnBI.Repositories
                 if (!File.Exists(filenameError))
                 {
                     // Create a file to write to.
-                    File.WriteAllText(filenameError, e.Message + ": \n" + e.StackTrace);
+                    File.WriteAllText(filenameError, String.Format("{0:dd.MM.yyyy hh:MM:ss}", DateTime.Now) + "\n" + e.Message + ": \n" + e.StackTrace);
                 }
-                File.AppendAllText(filenameError, "\n" + e.Message + ": \n" + e.StackTrace);
+                File.AppendAllText(filenameError, "\n" + String.Format("{0:dd.MM.yyyy hh:MM:ss}", DateTime.Now) + "\n" + e.Message + ": \n" + e.StackTrace);
             }
 
             return values;
@@ -239,24 +239,31 @@ namespace OwnBI.Repositories
             );
         }
 
-        private static void ExtractKeyAndValues(Dictionary<string, float> values, Nest.BucketAggregate bucket, int i, string key)
+        private static void ExtractKeyAndValues(Dictionary<string, float> values, Nest.BucketAggregate bucket, int i, string key, bool docCount)
         {
             i++;
             foreach (var lvl in bucket.Items)
             {
                 var nestTag = lvl as Nest.KeyedBucket;
-                var nestTagKey = key + ((key.Length > 0)? "_" : "") + nestTag.Key;
+                var nestTagKey = key + ((key.Length > 0)? "_" : "") + ((nestTag.KeyAsString != null)? nestTag.KeyAsString : nestTag.Key);
 
                 if (nestTag.Aggregations != null && nestTag.Aggregations.ContainsKey("level" + i) )
                 {
-                    ExtractKeyAndValues(values, nestTag.Aggregations["level" + i] as Nest.BucketAggregate, i, nestTagKey);
+                    ExtractKeyAndValues(values, nestTag.Aggregations["level" + i] as Nest.BucketAggregate, i, nestTagKey, docCount);
                 }
                 else
                 {
-                    double sum = 0.0;
-                    var sumAggs = (nestTag.Aggregations["summe"] as Nest.ValueAggregate);
-                    sum = sumAggs.Value.Value;
-                    values.Add(key + "_" + nestTag.Key, (float)sum);
+                    if (docCount)
+                    {
+                        values.Add(key + "_" + ((nestTag.KeyAsString != null) ? nestTag.KeyAsString : nestTag.Key), (float)nestTag.DocCount);
+                    }
+                    else
+                    {
+                        double sum = 0.0;
+                        var sumAggs = (nestTag.Aggregations["summe"] as Nest.ValueAggregate);
+                        sum = sumAggs.Value.Value;
+                        values.Add(key + "_" + ((nestTag.KeyAsString != null) ? nestTag.KeyAsString : nestTag.Key), (float)sum);
+                    }
                 }
             }
          

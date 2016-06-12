@@ -116,7 +116,8 @@ namespace OwnBI.Controllers
                     var values = (selectedCategoryNames.Count > 0 && selectedFactNames.Count > 0) ? aggs.Values.ToList<float>() : new List<float>();
                     valueList.Add(values);
                     titleList = aggs.Keys.Select(k => k.Replace("_", "")).ToList<string>().Distinct().ToList();
-                    labelList.Add(fact);
+
+                    labelList = (model.AggFunc != "count") ? labelList : new List<string>() { fact };
                 }
             }
 
