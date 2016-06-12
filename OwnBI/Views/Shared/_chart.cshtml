@@ -87,6 +87,9 @@
                         beginAtZero: true
                     }
                 }]
+            },
+            onClick: function(e, item) {
+                location.href = "/OwnBI/Doc?query=" + item[0]._model.label; 
             }
         }
     });
