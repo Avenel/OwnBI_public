@@ -117,7 +117,11 @@ namespace OwnBI.Controllers
                     valueList.Add(values);
                     titleList = aggs.Keys.Select(k => k.Replace("_", "")).ToList<string>().Distinct().ToList();
 
-                    labelList = (model.AggFunc != "count") ? labelList : new List<string>() { fact };
+                    labelList.Add(fact);
+                    labelList = (model.AggFunc != "count") ? labelList : new List<string>() { "Anzahl" };
+
+                    if (model.AggFunc == "count")
+                        break;
                 }
             }
 
