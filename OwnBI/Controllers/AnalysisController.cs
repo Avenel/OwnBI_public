@@ -1,8 +1,10 @@
-﻿using OwnBI.Models;
+﻿using OfficeOpenXml;
+using OwnBI.Models;
 using OwnBI.Repositories;
 using OwnBI.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -140,6 +142,49 @@ namespace OwnBI.Controllers
             model.DocTypes = DocTypeRepository.Index();
 
             return View(model);
+        }
+
+        public ActionResult GetExcel()
+        {
+            /*HttpResponseMessage response;
+            response = Request.CreateResponse(HttpStatusCode.OK);
+            MediaTypeHeaderValue mediaType = new MediaTypeHeaderValue("application/octet-stream");
+            response.Content = new StreamContent(GetExcelSheet());
+            response.Content.Headers.ContentType = mediaType;
+            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+            response.Content.Headers.ContentDisposition.FileName = "Orders.xls";
+            return response;*/
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                // for example foo.bak
+                FileName = "Analysis.xlsx",
+
+                // always prompt the user for downloading, set to true if you want 
+                // the browser to try to show the file inline
+                Inline = false,
+            };
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+            return File(CreateExcelFile(), "application/octet-stream");
+        }
+
+        public List<string> GetOrders()
+        {
+            return new List<string>(){"Hello", "World"};
+        }
+
+        private  MemoryStream CreateExcelFile()
+        {
+            FileInfo newFile = new FileInfo("D:\\Analysis.xlsx");
+
+            using (var package = new ExcelPackage(newFile))
+            {
+                var worksheet = package.Workbook.Worksheets.Where(w => w.Name == "Orders").FirstOrDefault();
+                worksheet.Cells["B1"].LoadFromCollection(GetOrders(), false);
+                // package.Save();
+                var stream = new MemoryStream(package.GetAsByteArray());
+                return stream;
+            }
         }
     }
 }
