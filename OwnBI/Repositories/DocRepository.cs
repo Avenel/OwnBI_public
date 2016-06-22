@@ -37,7 +37,7 @@ namespace OwnBI.Repositories
                .Size(50)
                .Query(q => q
                    .Bool(b => b
-                        .Must(BuildQueryContainer(query))
+                        .Must(BuildQueryContainer(query, null, null))
                     )
                 )
             );
@@ -52,7 +52,7 @@ namespace OwnBI.Repositories
         }
 
         // level<category, value>
-        public static Dictionary<string, float> Aggregate(List<string> categories, string fact, string query, string aggFunc)
+        public static Dictionary<string, float> Aggregate(List<string> categories, string fact, string query, string aggFunc, int? diffFromDays, int? diffToDays)
         {
             var values = new Dictionary<string, float>();
 
@@ -66,7 +66,7 @@ namespace OwnBI.Repositories
                         .Size(1000)
                         .Query(q => q
                             .Bool(b => b
-                                .Must(BuildQueryContainer(query))
+                                .Must(BuildQueryContainer(query, diffFromDays, diffToDays))
                             )
                         )
                         .Aggregations(a =>
@@ -175,7 +175,7 @@ namespace OwnBI.Repositories
             return doc;
         }
 
-        private static Nest.QueryContainer[] BuildQueryContainer(string query)
+        private static Nest.QueryContainer[] BuildQueryContainer(string query, int? diffFromDays, int? diffToDays)
         {
             var queryNodes = query.Split(',');
             var listOfQueries = new List<Nest.QueryContainer>();
@@ -202,6 +202,17 @@ namespace OwnBI.Repositories
                     queryBase.Query = queryNode;
                 }
                 listOfQueries.Add(new Nest.QueryContainer(queryBase));
+            }
+
+            // DateTime Range
+            if (diffFromDays.HasValue || diffToDays.HasValue)
+            {
+                var queryRange = new Nest.DateRangeQuery();
+                queryRange.Field = new Nest.Field();
+                queryRange.Field.Name = "datum";
+                queryRange.GreaterThanOrEqualTo = DateTime.Now.AddDays((diffFromDays.HasValue)? diffFromDays.Value : 0);
+                queryRange.LessThanOrEqualTo = DateTime.Now.AddDays((diffToDays.HasValue)? diffToDays.Value : 0);
+                listOfQueries.Add(new Nest.QueryContainer(queryRange));
             }
 
             return listOfQueries.ToArray();

@@ -98,6 +98,22 @@
             </div>
         </div>
 
+        <div class="col-md-12" style="margin-top: 5px;">
+            <label for="from">From</label>
+            <div class="input-group">
+                <input type="text" class="form-control datepicker" name="from" style="max-width: none;" placeholder="yyyy-mm-dd" aria-describedby="basic-addon2" value="@Model.From">
+                <span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></span>
+            </div>
+        </div>
+
+        <div class="col-md-12" style="margin-top: 5px;">
+            <label for="from">To</label>
+            <div class="input-group">
+                <input type="text" class="form-control datepicker" name="to" style="max-width: none;" placeholder="yyyy-mm-dd" aria-describedby="basic-addon2" value="@Model.To">
+                <span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></span>
+            </div>
+        </div>
+
         <div class="col-md-12" style="padding-top: 15px;">
             <div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
@@ -145,8 +161,10 @@
                 $('#categories').append($(option));
             }
         });
+
+        $('.datepicker').datetimepicker({
+            format: "YYYY-MM-DD"
+        });
     })
     
-
-
 </script>

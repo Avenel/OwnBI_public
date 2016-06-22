@@ -89,7 +89,7 @@
                 }]
             },
             onClick: function(e, item) {
-                location.href = "/OwnBI/Doc?query=" + item[0]._model.label + ", @((Request.Params["query"] != null) ? Request.Params["query"].ToString() : "")"; 
+                location.href = "/OwnBI/Doc?query=" + item[0]._model.label + ", @Html.Raw((Request.Params["query"] != null) ? Request.Params["query"].ToString() : "")"; 
             }
         }
     });

@@ -27,16 +27,35 @@
                         <tr>
                             <td style="text-transform:uppercase">@row</td>
                             @{
-                        foreach (var val in Model.Values[i])
-                        {
-                            <td>@val</td>
-                        }
+                                foreach (var val in Model.Values[i])
+                                {
+                                    <td>@val</td>
+                                }
                             }
                         </tr>
                         i++;
                     }
                 }
 
+                <!-- Summenzeile -->
+                <tr>
+                    <td style="text-transform:uppercase; font-weight:bold;">Summe</td>
+                    @{
+                        if (Model.Values.Count > 0)
+                        {
+                            for (var j = 0; j < Model.Values[0].Count; i++)
+                            {
+                                var sum = 0.0;
+                                for (var k = 0; k < Model.SeriesNames.Count; k++)
+                                {
+                                    sum += Model.Values[k][j];
+                                }
+                                <td style="font-weight: bold;">@(String.Format("{0:0.00}", sum))</td>
+                                j++;
+                            }
+                        }
+                    }
+                </tr>
             </table>
         </div>
     </div>

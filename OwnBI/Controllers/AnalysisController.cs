@@ -14,7 +14,8 @@ namespace OwnBI.Controllers
     public class AnalysisController : Controller
     {
         // GET: Analysis
-        public ActionResult Index(List<string> categories, List<string> facts, string query, string  docType, string chartType, string aggFunc)
+        public ActionResult Index(List<string> categories, List<string> facts, string query, string  docType, string chartType, string aggFunc,
+                                    string from, string to)
         {
             var model = new AnalysisViewModel();
             
@@ -60,6 +61,25 @@ namespace OwnBI.Controllers
                 query += "type:" + docType;
             }
 
+            // from and to date
+            model.From = from;
+            model.To = to;
+
+            DateTime fromDate;
+            DateTime toDate;
+            int? diffFomDays = null;
+            int? diffToDays = null;
+
+            if (DateTime.TryParse(from, out fromDate))
+            {
+                diffFomDays = (fromDate - DateTime.Now).Days;
+            }
+
+            if (DateTime.TryParse(from, out toDate))
+            {
+                diffToDays = (DateTime.Now - toDate).Days;
+            }
+            DateTime.TryParse(from, out toDate); 
 
             var selectedCategoryNames = new List<string>();
             var selectedCategoryTypes = new List<string>();
@@ -82,7 +102,7 @@ namespace OwnBI.Controllers
             // Todo Build Datasets for chartjs markup
             if (selectedCategoryNames.Count > 1)
             {
-                var aggs = DocRepository.Aggregate(selectedCategoryNames, selectedFactNames[0], query, aggFunc);
+                var aggs = DocRepository.Aggregate(selectedCategoryNames, selectedFactNames[0], query, aggFunc, diffFomDays, diffToDays);
                 titleList = aggs.Keys.Select(k => k.Split('_')[1]).Distinct().ToList();
 
                 var groupKeys = aggs.Keys.Select(k => k.Split('_')[0]).Distinct().ToList();
@@ -114,7 +134,7 @@ namespace OwnBI.Controllers
             {
                 foreach (var fact in selectedFactNames)
                 {
-                    var aggs = DocRepository.Aggregate(selectedCategoryNames, fact, query, aggFunc);
+                    var aggs = DocRepository.Aggregate(selectedCategoryNames, fact, query, aggFunc, diffFomDays, diffToDays);
                     var values = (selectedCategoryNames.Count > 0 && selectedFactNames.Count > 0) ? aggs.Values.ToList<float>() : new List<float>();
                     valueList.Add(values);
                     titleList = aggs.Keys.Select(k => k.Replace("_", "")).ToList<string>().Distinct().ToList();
