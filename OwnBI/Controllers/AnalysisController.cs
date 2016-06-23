@@ -75,9 +75,9 @@ namespace OwnBI.Controllers
                 diffFomDays = (fromDate - DateTime.Now).Days;
             }
 
-            if (DateTime.TryParse(from, out toDate))
+            if (DateTime.TryParse(to, out toDate))
             {
-                diffToDays = (DateTime.Now - toDate).Days;
+                diffToDays = (toDate - DateTime.Now).Days;
             }
             DateTime.TryParse(from, out toDate); 
 
@@ -150,8 +150,26 @@ namespace OwnBI.Controllers
             model.ChartModel = new ChartViewModel()
             {
                 Height = 400,
-                Categories = titleList,
-                SeriesNames = labelList,
+                Categories = titleList.Select(val =>
+                    {
+                        DateTime dateTime;
+                        if (DateTime.TryParse(val, out dateTime))
+                        {
+                            return String.Format("{0:yyyy-MM-dd}", dateTime);
+                        }
+                        return val;
+                    }
+                ).ToList(),
+                SeriesNames = labelList.Select(val =>
+                    {
+                        DateTime dateTime;
+                        if (DateTime.TryParse(val, out dateTime))
+                        {
+                            return String.Format("{0:yyyy-MM-dd}", dateTime);
+                        }
+                        return val;
+                    }
+                ).ToList(),
                 Values = valueList,
                 Type = model.ChartType,
                 Title = "",

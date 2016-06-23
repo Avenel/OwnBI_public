@@ -129,11 +129,34 @@ namespace OwnBI.Controllers
             model.HandelTagCloud = handelTagCloudModel;
 
             // Preis Summe
+
+            var listOfQueriesAusgaben = new List<Nest.QueryContainer>();
+            // DateTime Range
+            var queryRange = new Nest.DateRangeQuery();
+            queryRange.Field = new Nest.Field();
+            queryRange.Field.Name = "datum";
+            queryRange.GreaterThanOrEqualTo = DateTime.Now.AddDays(- DateTime.Now.Day);
+            queryRange.LessThanOrEqualTo = DateTime.Now.AddDays(0);
+            var rangeContainer = new Nest.QueryContainer(queryRange);
+            listOfQueriesAusgaben.Add(rangeContainer);
+
+            var queryAusgabe = new Nest.MatchQuery();
+            queryAusgabe.Field = new Nest.Field();
+            queryAusgabe.Field.Name = "type";
+            queryAusgabe.Query = "e0c4f438-4509-449b-a491-3fa3093b4129";
+            var docTypeContainer = new Nest.QueryContainer(queryAusgabe);
+            listOfQueriesAusgaben.Add(docTypeContainer);
+           
+
             res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
                 .Index("docs")
                 .From(0)
                 .Size(1000)
-                .Query(q => q.Match(m => m.Field("type").Query("e0c4f438-4509-449b-a491-3fa3093b4129")))
+                .Query(q => q
+                   .Bool(b => b
+                        .Must(listOfQueriesAusgaben.ToArray())
+                    )
+                )
                 .Aggregations(a =>
                     a.Sum("summe", aa => aa
                         .Field("preis"))
@@ -142,11 +165,24 @@ namespace OwnBI.Controllers
             model.SummeAusgaben = res.Aggs.Sum("summe").Value.Value;
 
             // Einnahmen Summe
+            var listOfQueriesEinnahmen = new List<Nest.QueryContainer>();
+            listOfQueriesEinnahmen.Add(rangeContainer);
+            var queryEinnahme = new Nest.MatchQuery();
+            queryEinnahme.Field = new Nest.Field();
+            queryEinnahme.Field.Name = "type";
+            queryEinnahme.Query = "05ce209c-e837-4fc4-b2a4-6b54bf73be46";
+            docTypeContainer = new Nest.QueryContainer(queryEinnahme);
+            listOfQueriesEinnahmen.Add(docTypeContainer);
+
             res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
                 .Index("docs")
                 .From(0)
                 .Size(1000)
-                .Query(q => q.Match(m => m.Field("type").Query("05ce209c-e837-4fc4-b2a4-6b54bf73be46")))
+                .Query(q => q
+                   .Bool(b => b
+                        .Must(listOfQueriesEinnahmen.ToArray())
+                    )
+                )
                 .Aggregations(a =>
                     a.Sum("summe", aa => aa
                         .Field("betrag"))
