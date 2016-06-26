@@ -210,8 +210,8 @@ namespace OwnBI.Repositories
                 var queryRange = new Nest.DateRangeQuery();
                 queryRange.Field = new Nest.Field();
                 queryRange.Field.Name = "datum";
-                queryRange.GreaterThanOrEqualTo = DateTime.Now.AddDays((diffFromDays.HasValue)? diffFromDays.Value : 0);
-                queryRange.LessThanOrEqualTo = DateTime.Now.AddDays((diffToDays.HasValue)? diffToDays.Value : 0);
+                queryRange.GreaterThanOrEqualTo = DateTime.Now.Date.AddDays((diffFromDays.HasValue)? diffFromDays.Value : 0);
+                queryRange.LessThanOrEqualTo = DateTime.Now.Date.AddDays((diffToDays.HasValue)? diffToDays.Value : 0);
                 listOfQueries.Add(new Nest.QueryContainer(queryRange));
             }
 
