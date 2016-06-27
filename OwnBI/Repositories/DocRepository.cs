@@ -30,14 +30,14 @@ namespace OwnBI.Repositories
             return list;
         }
 
-        public static List<dynamic> Search(string query)
+        public static List<dynamic> Search(string query, int? diffFromDays, int? diffToDays)
         {
             var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
                .Index("docs")
                .Size(50)
                .Query(q => q
                    .Bool(b => b
-                        .Must(BuildQueryContainer(query, null, null))
+                        .Must(BuildQueryContainer(query, diffFromDays, diffToDays))
                     )
                 )
             );

@@ -39,13 +39,24 @@
             </div>
 
             <div class="row" style="padding-top: 5px; padding-bottom: 5px; margin:0;">
-                <div class="col-md-3 col-md-offset-6" style="padding-left:0; padding-right:0; padding-bottom: 5px;">
+                <div class="col-md-3 col-md-offset-3" style="padding-left:0; padding-right:0; padding-bottom: 5px;">
+                    <label for="facts" style="font-weight:600; font-size:x-small;">From</label>
                     <div class="input-group">
-                        <input type="text" class="form-control datepicker" name="date" style="max-width: none;" placeholder="yyyy-mm-dd" aria-describedby="basic-addon2" value="@Model.Date">
+                        <input type="text" class="form-control datepicker" name="from" style="max-width: none;" placeholder="yyyy-mm-dd" aria-describedby="basic-addon2" value="@Model.From">
                         <span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></span>
                     </div>
                 </div>
+
+                <div class="col-md-3" style="padding-left:0; padding-right:0; padding-bottom: 5px;">
+                    <label for="facts" style="font-weight:600; font-size:x-small;">To</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control datepicker" name="to" style="max-width: none;" placeholder="yyyy-mm-dd" aria-describedby="basic-addon2" value="@Model.To">
+                        <span class="input-group-addon" id="basic-addon2"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></span>
+                    </div>
+                </div>
+
                 <div class="col-md-3" style="padding-left:0; padding-right:0;">
+                    <label for="facts" style="font-weight:600; font-size:x-small;">DocType</label>
                     <div class="input-group">
                         <select class="form-control" name="docType" style="max-width: none;">
                             <option value="">All</option>

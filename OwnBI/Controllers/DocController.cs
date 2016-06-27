@@ -15,27 +15,41 @@ namespace OwnBI.Controllers
     public class DocController : Controller
     {
         // GET: Doc
-        public ActionResult Index(string query, string date, string docType)
+        public ActionResult Index(string query, string docType, string from, string to)
         {
             var model = new DocIndexViewModel();
             model.Query = (query != null) ? query : "";
-            model.Date = date;
             model.DocType = docType;
-            
+            model.From = from;
+            model.To = to;
+
             bool docTypeIsSet = (docType != null && docType.Length > 0);
-            bool dateIsSet = (date != null && date.Length > 0);
 
             var queryWithFilters = model.Query;
             queryWithFilters += (docTypeIsSet && queryWithFilters.Length > 0) ? ", " : "";
             queryWithFilters += (docTypeIsSet) ? " type:" + docType : "";
-            queryWithFilters += (dateIsSet && queryWithFilters.Length > 0) ? ", " : "";
-            queryWithFilters += (dateIsSet) ? date : "";
+
+            DateTime fromDate;
+            DateTime toDate;
+            int? diffFomDays = null;
+            int? diffToDays = null;
+
+            if (DateTime.TryParse(from, out fromDate))
+            {
+                diffFomDays = (fromDate - DateTime.Now).Days;
+            }
+
+            if (DateTime.TryParse(to, out toDate))
+            {
+                diffToDays = (toDate - DateTime.Now).Days;
+            }
+            DateTime.TryParse(from, out toDate); 
 
             var docs = new List<dynamic>();
 
-            if (queryWithFilters.Length > 0)
+            if (queryWithFilters.Length > 0 || diffFomDays.HasValue || diffToDays.HasValue)
             {
-                docs = DocRepository.Search(queryWithFilters);
+                docs = DocRepository.Search(queryWithFilters, diffFomDays, diffToDays);
             }
             else
             {

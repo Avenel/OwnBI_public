@@ -14,7 +14,9 @@ namespace OwnBI.ViewModels
 
         public string Query { get; set; }
 
-        public string Date { get; set; }
+        public string From { get; set; }
+
+        public string To { get; set; }
 
         public string DocType { get; set; }
 
