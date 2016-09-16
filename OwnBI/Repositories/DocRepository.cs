@@ -30,6 +30,31 @@ namespace OwnBI.Repositories
             return list;
         }
 
+		public static List<string> GetValuesByMetaTagName(string metaTag)
+		{
+			var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
+			   .Index("docs")
+			   .Aggregations(aa => 
+				   aa.Terms("level0", ta => ta.Size(1000).Field(metaTag.ToLower()))
+				)
+			);
+
+			var items = ((Nest.BucketAggregate)res.Aggregations.Values.First()).Items;
+
+			var listOfUniqueNames = new List<string>();
+			foreach (var item in items)
+			{
+				string name = ((KeyedBucket)item).Key;
+				int number = 0;
+				if (name.Length > 0 && !int.TryParse(name, out number))
+				{
+					listOfUniqueNames.Add(name);
+				}				
+			}
+
+			return listOfUniqueNames;
+		}
+
         public static List<dynamic> Search(string query, int? diffFromDays, int? diffToDays)
         {
             var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
@@ -210,8 +235,8 @@ namespace OwnBI.Repositories
                 var queryRange = new Nest.DateRangeQuery();
                 queryRange.Field = new Nest.Field();
                 queryRange.Field.Name = "datum";
-                queryRange.GreaterThanOrEqualTo = DateTime.Now.Date.AddDays((diffFromDays.HasValue)? diffFromDays.Value : 0);
-                queryRange.LessThanOrEqualTo = DateTime.Now.Date.AddDays((diffToDays.HasValue)? diffToDays.Value : 0);
+                queryRange.GreaterThanOrEqualTo = DateTime.Now.ToUniversalTime().Date.AddDays((diffFromDays.HasValue)? diffFromDays.Value : 0);
+                queryRange.LessThanOrEqualTo = DateTime.Now.ToUniversalTime().Date.AddDays((diffToDays.HasValue)? diffToDays.Value : 0);
                 listOfQueries.Add(new Nest.QueryContainer(queryRange));
             }
 

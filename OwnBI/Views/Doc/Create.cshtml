@@ -26,17 +26,23 @@
                 <div class="form-group">
                     <label class="control-label col-md-2" for="DocType_Name">@metaTag.Name</label>
                     <div class="col-md-10">
-                        @{
-                    if (metaTag.DataType == "datetime" || metaTag.DataType == "number")
-                    {
-                        <input class="form-control @((metaTag.DataType == "datetime")? "datepicker" : "text-box") valid" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text">
-                    }
-                    else
-                    {
-                        <textarea class="form-control" rows="1" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id"></textarea>
-                    }
+                    @{
+                        if (metaTag.DataType == "datetime" || metaTag.DataType == "number")
+                        {
+                            <input class="form-control @((metaTag.DataType == "datetime")? "datepicker" : "text-box") valid" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text">
                         }
-
+                        else
+                        {
+                            if (metaTag.DataType == "text")
+                            {
+                                <textarea class="form-control text-box" rows="3" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id"></textarea>
+                            }
+                            else
+                            {
+                                <input class="form-control stringsAuto" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text" autocomplete="off"/>
+                            }
+                        }
+}
                     </div>
                 </div>
         }
@@ -53,6 +59,38 @@
     $(document).ready(function() {
         $('.datepicker').datetimepicker({
             format: "DD.MM.YYYY"
+        });
+
+        var $input = $('.stringsAuto');
+
+        $input.each(function (i, elem) {
+
+        });
+        $input.typeahead({
+            source: [
+                @foreach(var autoNameList in Model.AutoCompletes.Values){
+                    foreach (var autoName in autoNameList) { 
+                    <text>
+                        { name : "@Html.Raw(autoName)" },
+                    </text>
+                }
+                }
+            ],
+            autoSelect: true
+        });
+        $input.change(function () {
+            var current = $input.typeahead("getActive");
+            if (current) {
+                // Some item from your model is active!
+                if (current.name == $input.val()) {
+                    // This means the exact match is found. Use toLowerCase() if you want case insensitive match.
+                } else {
+                    // This means it is only a partial match, you can either add a new item 
+                    // or take the active if you don't want new items
+                }
+            } else {
+                // Nothing is active so it is a new value (or maybe empty value)
+            }
         });
     });
 </script>

@@ -21,13 +21,13 @@ namespace OwnBI.Controllers
             
             if (docType == "_all" || docType == null || docType == "")
             {
-                model.Categories = MetaTagRepository.Index().Where(mt => mt.DataType == "string" || mt.DataType == "datetime").ToDictionary<MetaTag, string>(mt => mt.Id.ToString());
+                model.Categories = MetaTagRepository.Index().Where(mt => mt.DataType == "string" || mt.DataType == "datetime" || mt.DataType == "text").ToDictionary<MetaTag, string>(mt => mt.Id.ToString());
                 model.Facts = MetaTagRepository.Index().Where(mt => mt.DataType == "number").ToDictionary<MetaTag, string>(mt => mt.Id.ToString());
             }
             else
             {
                 model.Categories = MetaTagRepository.ReadMany(DocTypeRepository.Read(Guid.Parse(docType)).MetaTags)
-                                    .Where(mt => mt.DataType == "string" || mt.DataType == "datetime")
+                                    .Where(mt => mt.DataType == "string" || mt.DataType == "datetime" || mt.DataType == "text")
                                     .ToDictionary<MetaTag, string>(mt => mt.Id.ToString());
 
                 model.Facts = MetaTagRepository.ReadMany(DocTypeRepository.Read(Guid.Parse(docType)).MetaTags)
@@ -72,14 +72,13 @@ namespace OwnBI.Controllers
 
             if (DateTime.TryParse(from, out fromDate))
             {
-                diffFomDays = (fromDate - DateTime.Now).Days;
+                diffFomDays = (fromDate.Date - DateTime.Now.Date).Days;
             }
 
             if (DateTime.TryParse(to, out toDate))
             {
-                diffToDays = (toDate - DateTime.Now).Days;
+                diffToDays = (toDate.Date - DateTime.Now.Date).Days;
             }
-            DateTime.TryParse(from, out toDate); 
 
             var selectedCategoryNames = new List<string>();
             var selectedCategoryTypes = new List<string>();

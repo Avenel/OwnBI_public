@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Threading;
+using System.Web;
 using System.Web.Optimization;
 
 namespace OwnBI
@@ -33,9 +34,17 @@ namespace OwnBI
                       "~/Scripts/moment.js",
                       "~/Scripts/respond.js",
                       "~/Scripts/bootstrap.js",
-                      "~/Scripts/bootstrap-datetimepicker.js"
+                      "~/Scripts/bootstrap-datetimepicker.js",
+					  "~/Scripts/bootstrap3-typeahead.min.js"
                       )
             );
+
+            bundles.Add(new ScriptBundle("~/bundles/textcomplete").Include(
+                "~/Scripts/jquery.textcomplete.js"
+                )
+            ); ;
+
+           
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",

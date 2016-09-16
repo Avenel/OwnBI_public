@@ -36,14 +36,13 @@ namespace OwnBI.Controllers
 
             if (DateTime.TryParse(from, out fromDate))
             {
-                diffFomDays = (fromDate - DateTime.Now).Days;
+                diffFomDays = (fromDate - DateTime.Now.Date).Days;
             }
 
             if (DateTime.TryParse(to, out toDate))
             {
-                diffToDays = (toDate - DateTime.Now).Days;
+                diffToDays = (toDate - DateTime.Now.Date).Days;
             }
-            DateTime.TryParse(from, out toDate); 
 
             var docs = new List<dynamic>();
 
@@ -106,6 +105,13 @@ namespace OwnBI.Controllers
             var docType = DocTypeRepository.Read(type);
             model.MetaTags = MetaTagRepository.ReadMany(docType.MetaTags);
             model.Type = docType.Name;
+
+			model.AutoCompletes = new Dictionary<string, List<string>>();
+
+			foreach (var metaTag in model.MetaTags.Where(m => m.DataType == "string").ToList())
+			{
+				model.AutoCompletes.Add(metaTag.Name, DocRepository.GetValuesByMetaTagName(metaTag.Name));
+			}
 
             return View(model);
         }

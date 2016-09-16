@@ -19,5 +19,7 @@ namespace OwnBI.ViewModels
         public List<MetaTag> MetaTags { get; set; }
 
         public Dictionary<string, string> Values { get; set; }
+
+		public Dictionary<string, List<string>> AutoCompletes { get; set; }
     }
 }

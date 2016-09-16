@@ -20,7 +20,7 @@ namespace OwnBI.Models
             public string Description { get; set; }
 
             [String(Name = "dataType", Index = FieldIndexOption.Analyzed)]
-            public string DataType { get; set; } // string, number, object, date, datetime
+            public string DataType { get; set; } // string, text, number, object, date, datetime
 
             public override string ToString()
             {

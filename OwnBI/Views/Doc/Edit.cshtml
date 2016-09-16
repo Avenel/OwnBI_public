@@ -29,10 +29,16 @@
                         }
                         else
                         {
-                            <textarea class="form-control" rows="1" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id">@Model.Values[metaTag.Id.ToString()]</textarea>
+                            if (metaTag.DataType == "text")
+                            {
+                                <textarea class="form-control" rows="3" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id">@Model.Values[metaTag.Id.ToString()]</textarea>
+                            }
+                            else
+                            {
+                                <input class="form-control" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text" value="@Model.Values[metaTag.Id.ToString()]" >
+                            }
                         }
                     }
-                    
                 </div>
             </div>
         }
