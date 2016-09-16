@@ -149,6 +149,14 @@ namespace OwnBI.Controllers
             model.TypeId = docType.Id;
 
             model.Values = mapMetaTagsAndDocValue(model.MetaTags, doc);
+
+			model.AutoCompletes = new Dictionary<string, List<string>>();
+
+			foreach (var metaTag in model.MetaTags.Where(m => m.DataType == "string").ToList())
+			{
+				model.AutoCompletes.Add(metaTag.Name, DocRepository.GetValuesByMetaTagName(metaTag.Name));
+			}
+
             return View(model);
         }
 

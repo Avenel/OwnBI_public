@@ -66,6 +66,7 @@
         $input.each(function (i, elem) {
 
         });
+
         $input.typeahead({
             source: [
                 @foreach(var autoNameList in Model.AutoCompletes.Values){
@@ -78,6 +79,7 @@
             ],
             autoSelect: true
         });
+
         $input.change(function () {
             var current = $input.typeahead("getActive");
             if (current) {

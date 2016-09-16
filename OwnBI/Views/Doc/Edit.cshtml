@@ -35,7 +35,7 @@
                             }
                             else
                             {
-                                <input class="form-control" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text" value="@Model.Values[metaTag.Id.ToString()]" >
+                                <input class="form-control stringsAuto" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text" value="@Model.Values[metaTag.Id.ToString()]" autocomplete="off" />
                             }
                         }
                     }
@@ -56,5 +56,34 @@
         $('.datepicker').datetimepicker({
             format: "DD.MM.YYYY"
         });
+
+        var $input = $('.stringsAuto');
+        $input.typeahead({
+            source: [
+                @foreach(var autoNameList in Model.AutoCompletes.Values){
+                    foreach (var autoName in autoNameList) { 
+            <text>
+                { name : "@Html.Raw(autoName)" },
+            </text>
+        }
+    }
+    ],
+    autoSelect: true
+    });
+
+    $input.change(function () {
+        var current = $input.typeahead("getActive");
+        if (current) {
+            // Some item from your model is active!
+            if (current.name == $input.val()) {
+                // This means the exact match is found. Use toLowerCase() if you want case insensitive match.
+            } else {
+                // This means it is only a partial match, you can either add a new item 
+                // or take the active if you don't want new items
+            }
+        } else {
+            // Nothing is active so it is a new value (or maybe empty value)
+        }
+    });
     });
 </script>
