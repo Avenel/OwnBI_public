@@ -202,6 +202,7 @@
     <Compile Include="ViewModels\DocIndexViewModel.cs" />
     <Compile Include="ViewModels\DocTypeViewModel.cs" />
     <Compile Include="ViewModels\DocViewModel.cs" />
+    <Compile Include="ViewModels\FastEntryViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
     <Compile Include="ViewModels\TagCloudViewModel.cs" />
   </ItemGroup>
@@ -298,6 +299,7 @@
     <Content Include="Views\Shared\_chart.cshtml" />
     <Content Include="Views\Analysis\Index.cshtml" />
     <Content Include="Views\Shared\_table.cshtml" />
+    <Content Include="Views\Doc\FastEntry.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

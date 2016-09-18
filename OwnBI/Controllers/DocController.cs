@@ -48,7 +48,7 @@ namespace OwnBI.Controllers
 
             if (queryWithFilters.Length > 0 || diffFomDays.HasValue || diffToDays.HasValue)
             {
-                docs = DocRepository.Search(queryWithFilters, diffFomDays, diffToDays);
+                docs = DocRepository.Search(queryWithFilters, diffFomDays, diffToDays, 50);
             }
             else
             {
@@ -81,7 +81,7 @@ namespace OwnBI.Controllers
         }
 
         // GET: Doc/Details/5
-        public ActionResult Details(Guid id)
+        public ActionResult Details(Guid id, string format)
         {
             var model = new DocViewModel();
 
@@ -95,7 +95,12 @@ namespace OwnBI.Controllers
 
             model.Values = mapMetaTagsAndDocValue(model.MetaTags, doc);
 
-            return View(model);
+			if (format != null && format == "json")
+			{
+				return Json(model, JsonRequestBehavior.AllowGet);
+			}
+
+			return View(model);
         }
 
         // GET: Doc/Create
@@ -110,11 +115,32 @@ namespace OwnBI.Controllers
 
 			foreach (var metaTag in model.MetaTags.Where(m => m.DataType == "string").ToList())
 			{
-				model.AutoCompletes.Add(metaTag.Name, DocRepository.GetValuesByMetaTagName(metaTag.Name));
+				model.AutoCompletes.Add(metaTag.Name, DocRepository.GetUniqueStringValuesByMetaTagName(metaTag.Name));
 			}
+
+			model.MostRecentDocuments = DocRepository.GetMostRecentDocumentsForDocType(type, -90);
 
             return View(model);
         }
+
+		// GET: Doc/FastEntry
+		public ActionResult FastEntry(Guid type)
+		{
+			var model = new FastEntryViewModel();
+			var docType = DocTypeRepository.Read(type);
+			model.MetaTags = MetaTagRepository.ReadMany(docType.MetaTags);
+			model.Type = docType.Name;
+			model.TypeId = type;
+
+			model.AutoCompletes = new Dictionary<string, List<string>>();
+
+			foreach (var metaTag in model.MetaTags.Where(m => m.DataType == "string").ToList())
+			{
+				model.AutoCompletes.Add(metaTag.Name, DocRepository.GetUniqueStringValuesByMetaTagName(metaTag.Name));
+			}
+
+			return View(model);
+		}
 
         // POST: Doc/Create
         [HttpPost]
@@ -154,7 +180,7 @@ namespace OwnBI.Controllers
 
 			foreach (var metaTag in model.MetaTags.Where(m => m.DataType == "string").ToList())
 			{
-				model.AutoCompletes.Add(metaTag.Name, DocRepository.GetValuesByMetaTagName(metaTag.Name));
+				model.AutoCompletes.Add(metaTag.Name, DocRepository.GetUniqueStringValuesByMetaTagName(metaTag.Name));
 			}
 
             return View(model);

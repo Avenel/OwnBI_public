@@ -16,10 +16,14 @@ namespace OwnBI.ViewModels
 
         public string Name { get; set; }
 
+		public int DocCountInDb { get; set; }
+
         public List<MetaTag> MetaTags { get; set; }
 
         public Dictionary<string, string> Values { get; set; }
 
 		public Dictionary<string, List<string>> AutoCompletes { get; set; }
+
+		public List<DocViewModel> MostRecentDocuments { get; set; }
     }
 }

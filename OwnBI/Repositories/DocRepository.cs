@@ -1,6 +1,7 @@
 ﻿using Nest;
 using OwnBI.DataAccess;
 using OwnBI.Models;
+using OwnBI.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -30,7 +31,7 @@ namespace OwnBI.Repositories
             return list;
         }
 
-		public static List<string> GetValuesByMetaTagName(string metaTag)
+		public static List<string> GetUniqueStringValuesByMetaTagName(string metaTag)
 		{
 			var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
 			   .Index("docs")
@@ -55,11 +56,12 @@ namespace OwnBI.Repositories
 			return listOfUniqueNames;
 		}
 
-        public static List<dynamic> Search(string query, int? diffFromDays, int? diffToDays)
+        public static List<dynamic> Search(string query, int? diffFromDays, int? diffToDays, int? count)
         {
             var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
                .Index("docs")
-               .Size(50)
+			   .From(0)
+               .Size((count.HasValue)? count.Value : 50)
                .Query(q => q
                    .Bool(b => b
                         .Must(BuildQueryContainer(query, diffFromDays, diffToDays))
@@ -274,6 +276,91 @@ namespace OwnBI.Repositories
                 )
             );
         }
+
+		public static List<DocViewModel> GetMostRecentDocumentsForDocType(Guid docType, int diffDays)
+		{
+			// Filter: type
+			var queryBase = new Nest.MatchQuery();
+			queryBase.Field = new Nest.Field();
+            queryBase.Field.Name = "type";
+            queryBase.Query = docType.ToString();
+
+			var queries = new List<Nest.QueryContainer>();
+			queries.Add(new Nest.QueryContainer(queryBase));
+
+			// Filter: DateRange
+			var queryRange = new Nest.DateRangeQuery();
+			queryRange.Field = new Nest.Field();
+			queryRange.Field.Name = "datum";
+			queryRange.GreaterThanOrEqualTo = DateTime.Now.ToUniversalTime().Date.AddDays(diffDays);
+			queryRange.LessThanOrEqualTo = DateTime.Now.ToUniversalTime().Date.AddDays(0);
+			
+			queries.Add(new Nest.QueryContainer(queryRange));
+
+			var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
+               .Index("docs")
+			   .From(0)
+			   .Size(1000)
+			   .Query(q => q
+                   .Bool(b => b
+                        .Must(queries.ToArray())
+                    )
+                )
+				.Aggregations(a => 
+                    a.Terms("tagcloud", ta => ta.Field("name"))
+                )
+			);
+
+			var list = new List<dynamic>();
+			if (res.Total > 0)
+			{
+				list = res.Hits.Select(h => h.Source as dynamic).ToList();
+			}
+
+			var docViewModelList = new List<DocViewModel>();
+			foreach (dynamic doc in list)
+			{
+				var docModel = new DocViewModel();
+				DocType type = DocTypeRepository.Read(Guid.Parse(doc.type));
+				docModel.Id = Guid.Parse(doc.id);
+				docModel.Type = type.Name;
+				try
+				{
+					docModel.Name = doc.name;
+				}
+				catch (Exception e)
+				{
+					docModel.Name = "";
+				}
+
+				docModel.MetaTags = MetaTagRepository.ReadMany(type.MetaTags);
+				docViewModelList.Add(docModel);
+			}
+
+			var docsPerNameList = new Dictionary<string, long>();
+			foreach (var tag in (res.Aggregations["tagcloud"] as Nest.BucketAggregate).Items)
+			{
+				var nestTag = tag as Nest.KeyedBucket;
+				docsPerNameList.Add(nestTag.Key, nestTag.DocCount.Value);
+			}
+
+			var rankedList = new List<DocViewModel>();
+			var i = 0;
+			foreach (var docName in docsPerNameList.Keys)
+			{
+				if (i<10)
+				{
+					var doc = docViewModelList.FirstOrDefault(d => d.Name == docName);
+					doc.DocCountInDb = (int) docsPerNameList[docName];
+					rankedList.Add(doc);
+				} else
+				{
+					break;
+				}
+			}
+
+			return rankedList;
+		}
 
         private static void ExtractKeyAndValues(Dictionary<string, float> values, Nest.BucketAggregate bucket, int i, string key, bool docCount)
         {

@@ -16,6 +16,7 @@
                 @foreach (var docType in Model.DocTypes)
                 {
                     <li>@Html.ActionLink(docType.Name, "Create", new { type = docType.Id })</li>
+                    <li>@Html.ActionLink(docType.Name + " (FastEntry)", "FastEntry", new { type = docType.Id })</li>
                 }
             </ul>
         </div>

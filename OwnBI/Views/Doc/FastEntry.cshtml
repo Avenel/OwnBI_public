@@ -1,0 +1,112 @@
+﻿@model OwnBI.ViewModels.FastEntryViewModel
+@{
+    ViewBag.Title = "FastEntry";
+}
+
+<h2>FastEntry</h2>
+
+<h3>@Model.Type</h3>
+
+<div class="row" style="margin-bottom:15px;">
+    <div class="col-sd-12 col-md-3 col-md-offset-9">
+        <div class="btn-group btn-group-justified" role="group">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" aria-haspopup="true" aria-expanded="false" id="addDocButton" onclick="addDoc()">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    Add
+                </button>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-primary" aria-haspopup="true" aria-expanded="false" id="submitDocsButton" onclick="submitDocs()">
+                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sd-12 col-md-12">
+        <table id="docEntries" class="table table-condensed">
+            <tr>
+                <th>DocAnzahl</th>
+                @foreach (var metaTag in Model.MetaTags)
+                {
+                    <th>@metaTag.Name</th>
+                }
+            </tr>
+            <tr>
+                <th></th>
+                @foreach (var metaTag in Model.MetaTags)
+                {
+                    <th>
+                        <button type="button" class="btn btn-default" aria-haspopup="true" aria-expanded="false" id="submitDocsButton" onclick="pinMetaTagValue('@metaTag.Id.ToString()')">
+                            <span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>
+                        </button>
+                    </th>
+                }
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    function addDoc() {
+        $('#docEntries tr:last').after(
+            '<tr><td><input class="form-control" type="number" name="anzahl" min="1"></td>@foreach(var metaTag in Model.MetaTags){
+                     <text><td><input class="form-control stringsAuto" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text" autocomplete="off" /></td></text>}</tr>'
+            );
+
+        var $input = $('.stringsAuto');
+        $input.typeahead({
+            source: [
+                @foreach(var autoNameList in Model.AutoCompletes.Values){
+                    foreach (var autoName in autoNameList) {
+                        <text>
+                                { name: "@Html.Raw(autoName)" },
+                            </text>
+                    }
+                }
+            ],
+            autoSelect: true
+        });
+    };
+
+    function submitDocs() {
+        var trs = $("#docEntries").find("tr");
+        for (var i = 2; i < trs.length; i++) {
+            var metaTags = $(trs[i]).find("input");
+            var tr = trs[i];
+            var formValues = {};
+            var allFilled = true;
+
+            metaTags.each(function (j, tag) {
+                formValues[tag.name] = tag.value;
+
+                if (tag.value == null || tag.value.length == 0) {
+                    allFilled = false;
+                }
+            });
+
+            if (allFilled) {
+                $.post("Create?type=@Model.TypeId.ToString()", formValues, function (data) {
+                });
+                $(tr).remove();
+            }
+        }
+    };
+
+    function pinMetaTagValue(metaTagId) {
+        var trs = $("#docEntries").find("tr");
+        for (var i = 3; i < trs.length; i++) {
+            var metaTags = $(trs[i]).find("input");
+            metaTags.each(function (j, tag) {
+                if (tag.name.indexOf(metaTagId) >= 0) {
+                    tag.value = $(trs[2]).find("input")[j].value;
+                }
+            });
+        }
+    };
+</script>

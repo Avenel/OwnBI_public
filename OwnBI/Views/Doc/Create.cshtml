@@ -5,94 +5,116 @@
 
 <h2>Create</h2>
 
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
-
-    <div class="form-horizontal">
-        <h4>@Model.Type</h4>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-
-        <div class="form-group">
-            <label class="control-label col-md-2" for="Anzahl">Doc Anzahl</label>
-            <div class="col-md-10">
-                <input type="number" name="anzahl" min="1">
-            </div>
-        </div>
-
-            @foreach (var metaTag in Model.MetaTags)
+<div class="row">
+    <div class="col-sm-12 col-md-9 col-lg-9">
+        @using (Html.BeginForm())
         {
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                <h4>@Model.Type</h4>
+                <hr />
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
                 <div class="form-group">
-                    <label class="control-label col-md-2" for="DocType_Name">@metaTag.Name</label>
+                    <label class="control-label col-md-2" for="Anzahl">Doc Anzahl</label>
                     <div class="col-md-10">
-                    @{
-                        if (metaTag.DataType == "datetime" || metaTag.DataType == "number")
+                        <input type="number" name="anzahl" min="1">
+                    </div>
+                </div>
+
+                @foreach (var metaTag in Model.MetaTags)
+                {
+                    <div class="form-group">
+                        <label class="control-label col-md-2" for="DocType_Name">@metaTag.Name</label>
+                        <div class="col-md-10">
+                            @{
+                    if (metaTag.DataType == "datetime" || metaTag.DataType == "number")
+                    {
+                        <input class="form-control @((metaTag.DataType == "datetime")? "datepicker" : "text-box") valid" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text">
+                    }
+                    else
+                    {
+                        if (metaTag.DataType == "text")
                         {
-                            <input class="form-control @((metaTag.DataType == "datetime")? "datepicker" : "text-box") valid" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text">
+                            <textarea class="form-control text-box" rows="3" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id"></textarea>
                         }
                         else
                         {
-                            if (metaTag.DataType == "text")
-                            {
-                                <textarea class="form-control text-box" rows="3" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id"></textarea>
-                            }
-                            else
-                            {
-                                <input class="form-control stringsAuto" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text" autocomplete="off"/>
-                            }
+                            <input class="form-control stringsAuto" id="Doc_@metaTag.Id" name="Doc.@metaTag.Id" type="text" autocomplete="off" />
                         }
-}
+                    }
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Create" class="btn btn-default" />
                     </div>
                 </div>
-        }
-
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Create" class="btn btn-default" />
-                </div>
             </div>
-        </div>
-}
+        }
+    </div>
 
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('.datepicker').datetimepicker({
-            format: "DD.MM.YYYY"
-        });
-
-        var $input = $('.stringsAuto');
-
-        $input.each(function (i, elem) {
-
-        });
-
-        $input.typeahead({
-            source: [
-                @foreach(var autoNameList in Model.AutoCompletes.Values){
-                    foreach (var autoName in autoNameList) { 
-                    <text>
-                        { name : "@Html.Raw(autoName)" },
-                    </text>
-                }
-                }
-            ],
-            autoSelect: true
-        });
-
-        $input.change(function () {
-            var current = $input.typeahead("getActive");
-            if (current) {
-                // Some item from your model is active!
-                if (current.name == $input.val()) {
-                    // This means the exact match is found. Use toLowerCase() if you want case insensitive match.
-                } else {
-                    // This means it is only a partial match, you can either add a new item 
-                    // or take the active if you don't want new items
-                }
-            } else {
-                // Nothing is active so it is a new value (or maybe empty value)
+    <!-- Recent created Documents-->
+    <div class="col-sm-12 col-md-3 col-lg-3">
+        <h4>Most Recent Documents</h4>
+        <div class="list-group">
+            @foreach(var doc in Model.MostRecentDocuments)
+            {
+                <button type="button" class="list-group-item" onclick="applyDocValues('@doc.Id.ToString()')">@doc.Name (@doc.DocCountInDb)</button>   
             }
+        </div>
+    </div>
+</div>
+
+    <script type="text/javascript">
+
+        function applyDocValues(id){
+            var docViewModel = $.getJSON("Details/" +id+"?format=json", function(data) {
+                    // übernehme Daten ins Formular
+                    Object.keys(data.Values).forEach(function(key) {
+                        var input = $("#Doc_" + key);
+                        input.val(data.Values[key]);
+                });
+            });
+        };
+
+        $(document).ready(function () {
+            $('.datepicker').datetimepicker({
+                format: "DD.MM.YYYY"
+            });
+
+            var $input = $('.stringsAuto');
+
+            $input.typeahead({
+                source: [
+                    @foreach(var autoNameList in Model.AutoCompletes.Values){
+                    foreach (var autoName in autoNameList) {
+                    <text>
+                            { name: "@Html.Raw(autoName)" },
+                        </text>
+                }
+                }
+                ],
+                autoSelect: true
+            });
+
+            $input.change(function () {
+                var current = $input.typeahead("getActive");
+                if (current) {
+                    // Some item from your model is active!
+                    if (current.name == $input.val()) {
+                        // This means the exact match is found. Use toLowerCase() if you want case insensitive match.
+                    } else {
+                        // This means it is only a partial match, you can either add a new item
+                        // or take the active if you don't want new items
+                    }
+                } else {
+                    // Nothing is active so it is a new value (or maybe empty value)
+                }
+            });
         });
-    });
-</script>
+    </script>
