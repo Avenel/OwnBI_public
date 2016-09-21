@@ -17,14 +17,29 @@ namespace OwnBI.Controllers
         {
             var model = new HomeViewModel();
 
+			// DateTime Range
+			var queryRange = new Nest.DateRangeQuery();
+			queryRange.Field = new Nest.Field();
+			queryRange.Field.Name = "datum";
+			queryRange.GreaterThanOrEqualTo = DateTime.Now.AddDays(-DateTime.Now.Day);
+			queryRange.LessThanOrEqualTo = DateTime.Now.AddDays(0);
+			var rangeContainer = new Nest.QueryContainer(queryRange);
+
             // Name TagCloud
             var nameTagCloudModel = new TagCloudViewModel();
             nameTagCloudModel.Title = "Meist verwendete Namen";
             nameTagCloudModel.Tags = new Dictionary<string, float>();
+			var listOfQueriesTagCloud = new List<Nest.QueryContainer>();
+			listOfQueriesTagCloud.Add(rangeContainer);
+
             var res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
                 .Index("docs")
                 .From(0)
-                .MatchAll()
+				.Query(q => q
+				   .Bool(b => b
+						.Must(listOfQueriesTagCloud.ToArray())
+					)
+				)
                 .Aggregations(a => 
                     a.Terms("tagcloud", ta => ta.Field("name"))
                 )
@@ -44,10 +59,24 @@ namespace OwnBI.Controllers
 
             foreach (var docType in DocTypeRepository.Index())
             {
+				var listOfQueriesDocType = new List<Nest.QueryContainer>();
+				listOfQueriesDocType.Add(rangeContainer);
+
+				var queryDocType = new Nest.MatchQuery();
+				queryDocType.Field = new Nest.Field();
+				queryDocType.Field.Name = "type";
+				queryDocType.Query = docType.Id.ToString();
+				var docTypesContainer = new Nest.QueryContainer(queryDocType);
+				listOfQueriesDocType.Add(docTypesContainer);
+
                 res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
                     .Index("docs")
                     .From(0)
-                    .Query(q => q.Match(m => m.Field("type").Query(docType.Id.ToString())))
+					.Query(q => q
+						.Bool(b => b
+							.Must(listOfQueriesDocType.ToArray())
+						)
+					)
                 );
                 docTagCloudModel.Tags.Add(docType.Name, res.Total);
             }
@@ -60,7 +89,11 @@ namespace OwnBI.Controllers
             res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
                 .Index("docs")
                 .From(0)
-                .MatchAll()
+				.Query(q => q
+				   .Bool(b => b
+						.Must(listOfQueriesTagCloud.ToArray())
+					)
+				)
                 .Aggregations(a =>
                     a.Terms("tagcloud", ta => ta.Field("ort"))
                 )
@@ -80,7 +113,11 @@ namespace OwnBI.Controllers
             res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
                 .Index("docs")
                 .From(0)
-                .MatchAll()
+				.Query(q => q
+				   .Bool(b => b
+						.Must(listOfQueriesTagCloud.ToArray())
+					)
+				)
                 .Aggregations(a =>
                     a.Terms("tagcloud", ta => ta.Field("kategorie")
                     .Aggregations(aa =>
@@ -107,7 +144,11 @@ namespace OwnBI.Controllers
             res = ElasticClientFactory.Client.Search<ExpandoObject>(s => s
                 .Index("docs")
                 .From(0)
-                .MatchAll()
+				.Query(q => q
+				   .Bool(b => b
+						.Must(listOfQueriesTagCloud.ToArray())
+					)
+				)
                 .Aggregations(a =>
                     a.Terms("tagcloud", ta => ta.Field("handel")
                         .Aggregations(aa =>
@@ -131,13 +172,6 @@ namespace OwnBI.Controllers
             // Preis Summe
 
             var listOfQueriesAusgaben = new List<Nest.QueryContainer>();
-            // DateTime Range
-            var queryRange = new Nest.DateRangeQuery();
-            queryRange.Field = new Nest.Field();
-            queryRange.Field.Name = "datum";
-            queryRange.GreaterThanOrEqualTo = DateTime.Now.AddDays(- DateTime.Now.Day);
-            queryRange.LessThanOrEqualTo = DateTime.Now.AddDays(0);
-            var rangeContainer = new Nest.QueryContainer(queryRange);
             listOfQueriesAusgaben.Add(rangeContainer);
 
             var queryAusgabe = new Nest.MatchQuery();
